@@ -533,6 +533,85 @@ def seed() -> None:
             enrollment2.is_current = True
             enrollment2.status = EnrollmentStatus.ACTIVE
 
+        # 12c. Student 3 (Prarthana Sharma)
+        prarthana_user = db.query(User).filter(User.email == "Prarthana@gmail.com").first()
+        if not prarthana_user:
+            prarthana_user = User(
+                college_id=college.id,
+                email="Prarthana@gmail.com",
+                password_hash=get_password_hash("Prarthana@123"),
+                full_name="Prarthana Sharma",
+                role=UserRole.STUDENT,
+            )
+            db.add(prarthana_user)
+            db.flush()
+        else:
+            prarthana_user.password_hash = get_password_hash("Prarthana@123")
+            prarthana_user.is_active = True
+            db.flush()
+
+        prarthana = db.query(StudentProfile).filter(StudentProfile.user_id == prarthana_user.id).first()
+        if not prarthana:
+            prarthana = StudentProfile(
+                user_id=prarthana_user.id,
+                section_id=section.id,
+                current_group_id=group_b1.id,
+                roll_number="BTCD24O1045",
+                enrollment_number="EN2024045",
+            )
+            db.add(prarthana)
+            db.flush()
+
+        prarthana_enrollment = (
+            db.query(AcademicEnrollment)
+            .filter(
+                AcademicEnrollment.student_id == prarthana.id,
+                AcademicEnrollment.section_id == section.id,
+            )
+            .first()
+        )
+        if not prarthana_enrollment:
+            prarthana_enrollment = AcademicEnrollment(
+                student_id=prarthana.id,
+                course_id=course.id,
+                branch_id=branch.id,
+                batch_id=batch.id,
+                section_id=section.id,
+                student_group_id=group_b1.id,
+                semester=5,
+                academic_year="2024-2025",
+                status=EnrollmentStatus.ACTIVE,
+                is_current=True,
+            )
+            db.add(prarthana_enrollment)
+            db.flush()
+
+        # 12d. Faculty (Ashish Tomar)
+        ashish_user = db.query(User).filter(User.email == "Ashish123@gmail.com").first()
+        if not ashish_user:
+            ashish_user = User(
+                college_id=college.id,
+                email="Ashish123@gmail.com",
+                password_hash=get_password_hash("Faculty@12345"),
+                full_name="Ashish Tomar",
+                role=UserRole.FACULTY,
+            )
+            db.add(ashish_user)
+            db.flush()
+        else:
+            ashish_user.is_active = True
+            db.flush()
+
+        ashish_faculty = db.query(FacultyProfile).filter(FacultyProfile.user_id == ashish_user.id).first()
+        if not ashish_faculty:
+            ashish_faculty = FacultyProfile(
+                user_id=ashish_user.id,
+                department_id=department.id,
+                employee_id="FAC003",
+                designation="Assistant Professor",
+            )
+            db.add(ashish_faculty)
+            db.flush()
 
         # 13. Timetable Entries
         # 13a. Monday 09:00 - 10:00: CS201 Theory (Whole Section CSD-A, Priya Sharma, Room C-204)

@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     debug: bool = True
     api_v1_prefix: str = "/api/v1"
 
-    database_url: str = "mysql+pymysql://geoattend:geoattend_secret@localhost:3306/geoattend"
+    database_url: str = "sqlite:///./geoattend.db"
 
     secret_key: str = "change-me-to-a-long-random-secret-key-in-production"
     access_token_expire_minutes: int = 30

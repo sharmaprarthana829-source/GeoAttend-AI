@@ -74,3 +74,13 @@ app.include_router(api_router, prefix=settings.api_v1_prefix)
 def health():
     return {"status": "ok", "app": settings.app_name}
 
+
+@app.get("/api/v1/system/bootstrap")
+def bootstrap_db():
+    from app.models import Base
+    from app.db.session import engine
+    Base.metadata.create_all(bind=engine)
+    from scripts.seed import seed
+    seed()
+    return {"status": "ok", "message": "Database bootstrapped and all demo users seeded successfully!"}
+
