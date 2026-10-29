@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screenshot 5: Core Database Schema (Compact)</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .header { text-align: center; margin-bottom: 24px; }
+    .badge {
+      display: inline-block;
+      background: #1e293b;
+      border: 1px solid #38bdf8;
+      padding: 4px 14px;
+      border-radius: 9999px;
+      font-size: 13px;
+      color: #38bdf8;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    h1 { font-size: 24px; font-weight: 700; color: #f8fafc; }
+    p { font-size: 14px; color: #94a3b8; margin-top: 4px; }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      max-width: 100%;
+    }
+    .footer { margin-top: 20px; font-size: 13px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="badge">Screenshot 5 • Database Schema</div>
+    <h1>GeoAttend AI — Core ER Diagram</h1>
+    <p>Compact Architecture: Authentication, Timetable, Attendance Sessions & AI Anomaly Detection</p>
+  </div>
+
+  <div class="card">
+    <pre class="mermaid">
+erDiagram
+    USERS ||--|| STUDENTS : "user_id"
+    USERS ||--|| FACULTY : "user_id"
+    
+    USERS {
+        int id PK
+        string email UK
+        string full_name
+        string role "admin / faculty / student"
+    }
+
+    STUDENTS {
+        int id PK
+        int user_id FK
+        string enrollment_number UK
+        string preferred_device_id
+    }
+
+    FACULTY {
+        int id PK
+        int user_id FK
+        string employee_code UK
+        string designation
+    }
+
+    FACULTY ||--o{ ATTENDANCE_SESSIONS : "conducts"
+    TIMETABLE_ENTRIES ||--o{ ATTENDANCE_SESSIONS : "schedules"
+    
+    TIMETABLE_ENTRIES {
+        int id PK
+        string subject_code
+        string day_of_week
+        time start_time
+        time end_time
+    }
+
+    ATTENDANCE_SESSIONS {
+        int id PK
+        int faculty_id FK
+        int timetable_id FK
+        float geofence_lat_lng
+        float radius_meters
+        string status "active / completed"
+    }
+
+    ATTENDANCE_SESSIONS ||--o{ ATTENDANCE_RECORDS : "contains"
+    STUDENTS ||--o{ ATTENDANCE_RECORDS : "submits"
+
+    ATTENDANCE_RECORDS {
+        int id PK
+        int session_id FK
+        int student_id FK
+        datetime check_in_time
+        string status "present / late"
+        string device_id
+        boolean is_verified
+    }
+
+    ATTENDANCE_RECORDS ||--|| SUSPICIOUS_ACTIVITIES : "triggers"
+
+    SUSPICIOUS_ACTIVITIES {
+        int id PK
+        int record_id FK
+        float risk_score "0 - 100"
+        float isolation_forest_score
+        string review_status "pending / confirmed"
+    }
+    </pre>
+  </div>
+
+  <div class="footer">
+    💡 High-Res Image already generated & opened: <code>screenshot_5_er_diagram.png</code>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      er: {
+        useMaxWidth: true,
+        fontSize: 13
+      }
+    });
+  </script>
+</body>
+</html>
