@@ -198,15 +198,40 @@ class _StudentCheckinSheetState extends State<StudentCheckinSheet> {
           ),
           const SizedBox(height: 16),
 
-          // Optional QR Code input if requested by faculty
+          // Direct GPS Location Verification Banner (No QR Required)
           if (_response == null) ...[
-            TextFormField(
-              controller: _qrController,
-              style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
-              decoration: const InputDecoration(
-                labelText: 'QR Token (Optional / Auto-Scanned)',
-                hintText: 'Enter session QR token if provided',
-                prefixIcon: Icon(Icons.qr_code_scanner, size: 20, color: AppTheme.textMuted),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppTheme.emeraldPrimary.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppTheme.emeraldPrimary.withOpacity(0.25)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.location_on, size: 20, color: AppTheme.emeraldPrimary),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Direct Location Check-In',
+                          style: TextStyle(
+                            color: AppTheme.emeraldPrimary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'No QR code needed. Tap the button below to verify your location and mark attendance instantly.',
+                          style: TextStyle(color: AppTheme.textSecondary, fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
@@ -343,8 +368,8 @@ class _StudentCheckinSheetState extends State<StudentCheckinSheet> {
           // Action Button
           if (_response == null)
             CustomButton(
-              text: 'Verify GPS & Check In',
-              icon: Icons.my_location,
+              text: 'Tap to Mark Attendance',
+              icon: Icons.touch_app,
               onPressed: _isLoading ? null : _handleCheckIn,
               isLoading: _isLoading,
             )
