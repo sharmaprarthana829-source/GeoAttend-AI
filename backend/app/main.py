@@ -5,17 +5,43 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from contextlib import asynccontextmanager
 from app.api.v1.router import api_router
 from app.core.config import settings
 
 logger = logging.getLogger("uvicorn.error")
 
-app = FastAPI(title=settings.app_name, version="0.1.0", debug=settings.debug)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Auto-initialize database tables and seed data if fresh database
+    try:
+        from app.models import Base
+        from app.db.session import engine, SessionLocal
+        Base.metadata.create_all(bind=engine)
+
+        db = SessionLocal()
+        from app.models import User
+        if db.query(User).count() == 0:
+            logger.info("Fresh database detected. Seeding initial campus data...")
+            try:
+                from scripts.seed import seed
+                seed()
+                logger.info("Initial seed completed successfully.")
+            except Exception as se:
+                logger.warning(f"Seed note: {se}")
+        db.close()
+    except Exception as e:
+        logger.warning(f"Database bootstrap note: {e}")
+    yield
+
+
+app = FastAPI(title=settings.app_name, version="0.1.0", debug=settings.debug, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
-    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
+    allow_origin_regex=r"^https?://.*$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
