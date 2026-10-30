@@ -374,32 +374,33 @@ export default function NoticesPage() {
               </span>
             )}
           </nav>
-          <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
-            Campus Announcements & Notices
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Megaphone className="h-6 w-6 text-emerald-400" />
+            Campus Notice Board
           </h1>
           <p className="text-sm text-slate-400 mt-1">
             {isAdmin
-              ? "Centralized administrative notice board: publish and manage notices with automated audience targeting."
-              : "Official campus circulars and announcements targeted to your enrolled branch, department, or group."}
+              ? "Publish and manage campus announcements, circulars, and notifications."
+              : "Official campus announcements and circulars for your department and classes."}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <Button
             variant="outline"
             size="sm"
             onClick={loadNotices}
             disabled={loading}
-            className="border-slate-700 hover:border-slate-600 text-slate-300 flex items-center gap-1.5"
+            className="border-slate-700 hover:border-slate-600 text-slate-300 flex items-center gap-1.5 text-xs"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin text-emerald-400" : ""}`} />
             Refresh
           </Button>
 
           {isAdmin && (
             <Button
               onClick={openCreateModal}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 shadow-lg shadow-emerald-950/30"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 text-xs shadow-md shadow-emerald-950/40"
             >
               <Plus className="h-4 w-4" /> Create Notice
             </Button>
@@ -415,62 +416,48 @@ export default function NoticesPage() {
         </div>
       )}
 
-      {/* Summary KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="p-4 border-slate-800/60 bg-surface-900/70">
+      {/* Summary Metrics (3 Clean Cards) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Card className="p-4 border-slate-800/80 bg-surface-900/80 hover:border-slate-700 transition">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-              {isAdmin ? "Total Notices" : "Visible Notices"}
-            </span>
+            <span className="text-xs font-medium text-slate-400">Total Notices</span>
             <Megaphone className="h-4 w-4 text-emerald-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-bold text-white font-mono">{metrics.total}</span>
-            <span className="text-xs text-slate-400">in database</span>
+            <span className="text-xs text-slate-400">published</span>
           </div>
+          <p className="text-[11px] text-slate-500 mt-1">All board circulars</p>
         </Card>
 
-        <Card className="p-4 border-slate-800/60 bg-surface-900/70">
+        <Card className="p-4 border-blue-950 bg-surface-900/80 hover:border-blue-800/60 transition">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Campus Wide</span>
+            <span className="text-xs font-medium text-blue-400">Campus-Wide</span>
             <Building2 className="h-4 w-4 text-blue-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-bold text-blue-400 font-mono">{metrics.allCampus}</span>
-            <span className="text-xs text-slate-400">All users</span>
+            <span className="text-xs text-slate-400">for all users</span>
           </div>
+          <p className="text-[11px] text-slate-500 mt-1">General announcements</p>
         </Card>
 
-        <Card className="p-4 border-slate-800/60 bg-surface-900/70">
+        <Card className="p-4 border-purple-950 bg-surface-900/80 hover:border-purple-800/60 transition">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Targeted</span>
+            <span className="text-xs font-medium text-purple-400">Targeted Notices</span>
             <Users className="h-4 w-4 text-purple-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-bold text-purple-400 font-mono">{metrics.targeted}</span>
-            <span className="text-xs text-slate-400">Dept/Branch/Group</span>
+            <span className="text-xs text-slate-400">Dept / Cohort</span>
           </div>
-        </Card>
-
-        <Card className="p-4 border-slate-800/60 bg-surface-900/70">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-              {isAdmin ? "Published & Active" : "Filtered Matches"}
-            </span>
-            <ShieldCheck className="h-4 w-4 text-teal-400" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-teal-400 font-mono">
-              {isAdmin ? metrics.active : filteredNotices.length}
-            </span>
-            <span className="text-xs text-slate-400">{isAdmin ? "active" : "showing"}</span>
-          </div>
+          <p className="text-[11px] text-slate-500 mt-1">Class & department circulars</p>
         </Card>
       </div>
 
       {/* Search & Filter Toolbar */}
-      <Card className="p-4 border-slate-800/60 bg-surface-900/70 space-y-3">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      <Card className="p-3.5 border-slate-800/80 bg-surface-900/80">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Search Bar */}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
@@ -479,7 +466,7 @@ export default function NoticesPage() {
               placeholder="Search notices by title, content, or author..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-slate-900/80 border-slate-700/80 text-sm text-slate-200 placeholder:text-slate-500 w-full"
+              className="pl-9 bg-surface-950 border-slate-700/80 text-xs text-slate-200 placeholder:text-slate-500 w-full"
             />
             {searchQuery && (
               <button
@@ -492,80 +479,66 @@ export default function NoticesPage() {
           </div>
 
           {/* Filter Controls */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* Category Filter */}
-            <div className="flex items-center gap-1.5 text-xs text-slate-400">
-              <Tag className="h-3.5 w-3.5" />
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
-              >
-                <option value="all">All Categories</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="bg-surface-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+            >
+              <option value="all">All Categories</option>
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
 
-            {/* Audience Filter */}
-            <div className="flex items-center gap-1.5 text-xs text-slate-400">
-              <Users className="h-3.5 w-3.5" />
-              <select
-                value={audienceFilter}
-                onChange={(e) => setAudienceFilter(e.target.value)}
-                className="bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
-              >
-                <option value="all">All Audiences</option>
-                <option value="all_campus">All Campus</option>
-                <option value="targeted">Targeted Only</option>
-                <option value="students">Students Only</option>
-                <option value="faculty">Faculty Only</option>
-                <option value="coordinators">Coordinators Only</option>
-                <option value="department">Specific Department</option>
-                <option value="branch">Specific Branch</option>
-                <option value="group">Student Group</option>
-              </select>
-            </div>
+            <select
+              value={audienceFilter}
+              onChange={(e) => setAudienceFilter(e.target.value)}
+              className="bg-surface-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+            >
+              <option value="all">All Audiences</option>
+              <option value="all_campus">All Campus</option>
+              <option value="targeted">Targeted Only</option>
+              <option value="students">Students Only</option>
+              <option value="faculty">Faculty Only</option>
+              <option value="department">Department</option>
+              <option value="branch">Branch</option>
+              <option value="group">Student Group</option>
+            </select>
 
-            {/* Status Filter (Admin Only) */}
             {isAdmin && (
-              <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                <Filter className="h-3.5 w-3.5" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as any)}
-                  className="bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="active">Active Only</option>
-                  <option value="inactive">Deactivated Only</option>
-                </select>
-              </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as any)}
+                className="bg-surface-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
             )}
 
-            {/* Sort Order */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => setSortOrder(sortOrder === "newest" ? "oldest" : "newest")}
-              className="border-slate-700 hover:border-slate-600 text-xs text-slate-300 flex items-center gap-1.5"
+              className="border-slate-700 hover:border-slate-600 text-xs text-slate-300 flex items-center gap-1.5 h-8"
             >
               <ArrowUpDown className="h-3 w-3" />
-              {sortOrder === "newest" ? "Newest First" : "Oldest First"}
+              {sortOrder === "newest" ? "Newest" : "Oldest"}
             </Button>
           </div>
         </div>
       </Card>
 
       {/* Notices Feed */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {loading ? (
           <Card className="p-12 text-center border-slate-800/60 bg-surface-900/70">
             <RefreshCw className="h-8 w-8 text-emerald-500 mx-auto mb-3 animate-spin" />
-            <p className="text-slate-400 text-sm">Loading campus notices from backend...</p>
+            <p className="text-slate-400 text-sm">Loading campus notices...</p>
           </Card>
         ) : filteredNotices.length === 0 ? (
           <Card className="p-12 text-center border-slate-800/60 bg-surface-900/70">
@@ -595,7 +568,7 @@ export default function NoticesPage() {
           filteredNotices.map((n) => (
             <Card
               key={n.id}
-              className={`p-6 border-slate-800/60 bg-surface-900/70 hover:border-slate-700/60 transition-colors ${
+              className={`p-5 border-slate-800/80 bg-surface-900/70 hover:border-slate-700 transition ${
                 !n.is_active ? "opacity-60 bg-surface-950/80" : ""
               }`}
             >
@@ -633,11 +606,11 @@ export default function NoticesPage() {
                   {/* Title & Preview */}
                   <h3
                     onClick={() => setDetailNotice(n)}
-                    className="text-lg font-semibold text-white hover:text-emerald-400 cursor-pointer transition-colors"
+                    className="text-base font-semibold text-white hover:text-emerald-400 cursor-pointer transition-colors"
                   >
                     {n.title}
                   </h3>
-                  <p className="text-sm text-slate-300 whitespace-pre-line leading-relaxed line-clamp-3">
+                  <p className="text-xs text-slate-300 whitespace-pre-line leading-relaxed line-clamp-2">
                     {n.content}
                   </p>
 
@@ -656,30 +629,30 @@ export default function NoticesPage() {
                     {n.expires_at && (
                       <span className="flex items-center gap-1 text-amber-400/80">
                         <Clock className="h-3.5 w-3.5" />
-                        Valid until: {new Date(n.expires_at).toLocaleDateString()}
+                        Expires: {new Date(n.expires_at).toLocaleDateString()}
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Card Actions */}
-                <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0 pt-1 sm:pt-0">
+                {/* Card Actions in clean horizontal layout */}
+                <div className="flex items-center gap-1.5 shrink-0 pt-1 sm:pt-0">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setDetailNotice(n)}
-                    className="text-slate-300 hover:text-white text-xs border-slate-700/80 flex items-center gap-1"
+                    className="text-slate-300 hover:text-white text-xs border-slate-700/80 flex items-center gap-1 h-8"
                   >
-                    <Eye className="h-3.5 w-3.5" /> View Notice
+                    <Eye className="h-3.5 w-3.5" /> View
                   </Button>
 
                   {isAdmin && (
-                    <div className="flex items-center gap-1.5">
+                    <>
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => openEditModal(n)}
-                        className="text-slate-300 hover:text-emerald-400 text-xs border-slate-700/80 p-2"
+                        className="text-slate-400 hover:text-emerald-400 text-xs h-8 px-2"
                         title="Edit Notice"
                       >
                         <Edit2 className="h-3.5 w-3.5" />
@@ -687,15 +660,15 @@ export default function NoticesPage() {
                       {n.is_active && (
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="ghost"
                           onClick={() => setConfirmDeleteNotice(n)}
-                          className="text-rose-400 hover:text-rose-300 text-xs border-rose-500/20 p-2"
+                          className="text-slate-400 hover:text-rose-400 text-xs h-8 px-2"
                           title="Deactivate Notice"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       )}
-                    </div>
+                    </>
                   )}
                 </div>
               </div>
