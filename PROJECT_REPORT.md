@@ -41,6 +41,10 @@ graph TD
     F --> I[Suspicious Activity Desk<br>Real-Time Fraud Triage]
 ```
 
+### Integrated Component Architecture Diagram
+![Figure 4: GeoAttend AI — Integrated System Component Architecture](figures/figure_4_component_architecture.png)
+*Figure 4: Integrated Three-Tier System Architecture spanning Flutter Mobile Sensor Client, FastAPI Backend with Hybrid AI Sentinel, and Cloud Persistence Layer.*
+
 ### Technology Stack Summary
 
 | Layer | Technologies Used | Key Responsibilities |
@@ -388,8 +392,15 @@ GeoAttend AI incorporates a **Hybrid Anomaly Detection Engine** (`HybridAnomalyE
 ### 2. Machine Learning Anomaly Detection
 * **10-Dimensional Feature Vector:**
   $$\vec{x} = [\text{distance\_meters}, \text{distance\_ratio}, \text{elapsed\_minutes}, \text{hour\_of\_day}, \text{day\_of\_week}, \text{device\_reuse\_count}, \text{late\_ratio}, \text{suspicious\_ratio}, \text{has\_wifi}, \text{has\_gps}]$$
-* **Isolation Forest:** An unsupervised tree ensemble model trained to isolate anomalous multidimensional behavioral outliers without requiring pre-labeled fraud datasets.
-* **DBSCAN Spatial Density Clustering:** Evaluates all check-in coordinates inside a lecture. Legitimate students form a dense spatial cluster in the classroom. Any student spoofing coordinates that fall outside this physical cluster is classified as **spatial noise outlier**.
+* **Isolation Forest Model:** An unsupervised tree ensemble model trained to isolate anomalous multidimensional behavioral outliers without requiring pre-labeled fraud datasets.
+  
+![Figure 1: GeoAttend AI — Isolation Forest Anomaly Detection Output](figures/figure_1_isolation_forest.png)
+*Figure 1: Actual Isolation Forest model output — Decision boundary contours, legitimate inlier clusters vs. isolated proxy anomalies, and empirical risk score distribution with decision threshold ($\tau = 25.0$).*
+
+* **DBSCAN Spatial Density Clustering:** Evaluates all check-in coordinates inside a lecture. Legitimate students form a dense spatial cluster in the classroom. Any student spoofing coordinates that fall outside this physical cluster is classified as a **spatial noise outlier** ($label = -1$).
+
+![Figure 2: GeoAttend AI — DBSCAN Spatial Clustering Output](figures/figure_2_dbscan_clustering.png)
+*Figure 2: Actual DBSCAN spatial clustering output evaluated via spherical Haversine metric, showing classroom cohort centroid anchor, 40m authorized perimeter, and isolated noise outliers.*
 
 ### 3. Ethical AI Principle (Advisory Sentinel)
 * The AI **never arbitrarily marks a student absent** solely on an automated model prediction.
@@ -408,6 +419,10 @@ GeoAttend AI incorporates a **Hybrid Anomaly Detection Engine** (`HybridAnomalyE
 | **Faculty (Teacher / HOD)** | Start & close live attendance sessions, live student check-in monitor, review suspicious proxy alerts, attendance application approvals (medical leaves/OD), debarment reports |
 | **Student** | 1-Tap GPS attendance check-in, real-time schedule, personal attendance percentage tracking, medical leave & on-duty application submission, notice board |
 
+### Visual Functional Implementation Showcase
+![Figure 5: GeoAttend AI — Functional Implementation Overview](figures/figure_5_functional_overview.png)
+*Figure 5: Functional implementation collage across production web portal modules: (A) Attendance Monitor & AI Sentinel Desk, (B) Student Records & Hardware UUID Binding, (C) Timetable Engine & Collision Validator, (D) Subject Offerings & Faculty Assignment, (E) Leave Applications & Condonation Workflow, and (F) Campus Announcement & Notice Board.*
+
 ---
 
 ## 7. Live Deployment & Deliverables
@@ -418,6 +433,10 @@ The project is fully deployed, operational, and accessible:
 * **Backend Cloud API (Render):** [https://geoattend-api-0602.onrender.com](https://geoattend-api-0602.onrender.com)
   * Interactive Swagger Documentation: [`/docs`](https://geoattend-api-0602.onrender.com/docs)
   * System Health Check: [`/health`](https://geoattend-api-0602.onrender.com/health)
+
+![Figure 3: GeoAttend AI — FastAPI Swagger Documentation (Interactive OpenAPI 3.1)](figures/figure_3_swagger_docs.png)
+*Figure 3: Actual screenshot of GeoAttend AI FastAPI Swagger Interactive Documentation (`/docs`) in production on Render Cloud PaaS.*
+
 * **Web Frontend (Vercel):** [https://geo-attend-ai.vercel.app](https://geo-attend-ai.vercel.app)
 * **Mobile Client APK:** Android Release Build ready for sideloading and student distribution:
   * File location: [`GeoAttend-AI.apk`](file:///Users/apple/Projects/geoattend-ai/GeoAttend-AI.apk) *(50MB)*
