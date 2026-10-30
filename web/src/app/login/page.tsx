@@ -31,8 +31,11 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState("");
   const [forgotModalOpen, setForgotModalOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [capsLockActive, setCapsLockActive] = useState(false);
 
   // Active Role State driving Canvas Morphing
   const [activeRole, setActiveRole] = useState<"admin" | "faculty" | "student">("admin");
@@ -44,6 +47,87 @@ export default function LoginPage() {
   const [timeString, setTimeString] = useState("");
   const [dateString, setDateString] = useState("");
 
+  const demoAccounts = [
+    {
+      role: "admin",
+      label: "Admin",
+      badge: "Campus Oversight",
+      description: "Full system governance & multi-college oversight",
+      email: "admin@geoattend.ai",
+      pass: "Admin@12345",
+    },
+    {
+      role: "faculty",
+      label: "Faculty",
+      badge: "Session QR & Roster",
+      description: "Class attendance, dynamic QR & student records",
+      email: "faculty@geoattend.ai",
+      pass: "Faculty@12345",
+    },
+    {
+      role: "student",
+      label: "Student",
+      badge: "Geofence Check-in",
+      description: "Real-time location verification & attendance logs",
+      email: "student@geoattend.ai",
+      pass: "Student@12345",
+    },
+  ] as const;
+
+  // Restore saved session preferences on mount
+  useEffect(() => {
+    try {
+      const savedRemember = localStorage.getItem("geoattend_remember_session");
+      const savedRole = localStorage.getItem("geoattend_saved_role") as "admin" | "faculty" | "student" | null;
+      const savedEmail = localStorage.getItem("geoattend_saved_email");
+
+      if (savedRemember === "false") {
+        setRememberMe(false);
+      } else {
+        setRememberMe(true);
+        if (savedRole && (savedRole === "admin" || savedRole === "faculty" || savedRole === "student")) {
+          setActiveRole(savedRole);
+          const match = demoAccounts.find((d) => d.role === savedRole);
+          if (match) {
+            setEmail(savedEmail || match.email);
+            setPassword(match.pass);
+          }
+        }
+      }
+    } catch {
+      // Storage restricted
+    }
+  }, []);
+
+  // Multi-phase progress indicator during authentication
+  useEffect(() => {
+    let t1: NodeJS.Timeout;
+    let t2: NodeJS.Timeout;
+    if (loading) {
+      setLoadingStep(0);
+      t1 = setTimeout(() => setLoadingStep(1), 2200);
+      t2 = setTimeout(() => setLoadingStep(2), 5200);
+    } else {
+      setLoadingStep(0);
+    }
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [loading]);
+
+  // Modal ESC handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && forgotModalOpen) {
+        setForgotModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [forgotModalOpen]);
+
+  // Clock tick
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -84,21 +168,29 @@ export default function LoginPage() {
     setParallax({ rotateX, rotateY, mouseX: xPct, mouseY: yPct });
   };
 
-  const demoAccounts = [
-    { role: "admin", label: "Admin", email: "admin@geoattend.ai", pass: "Admin@12345" },
-    { role: "faculty", label: "Faculty (HOD)", email: "faculty@geoattend.ai", pass: "Faculty@12345" },
-    { role: "student", label: "Student", email: "student@geoattend.ai", pass: "Student@12345" },
-  ];
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  async function executeLogin(targetEmail: string, targetPass: string, targetRole: "admin" | "faculty" | "student") {
     setLoading(true);
     setError("");
 
     try {
-      const tokens = await api.login(email, password);
+      const tokens = await api.login(targetEmail, targetPass);
       setTokens(tokens.access_token, tokens.refresh_token);
-      toast.success("Location Lock Verified", "Accessing GeoAttend OS workspace.");
+
+      try {
+        if (rememberMe) {
+          localStorage.setItem("geoattend_remember_session", "true");
+          localStorage.setItem("geoattend_saved_role", targetRole);
+          localStorage.setItem("geoattend_saved_email", targetEmail);
+        } else {
+          localStorage.setItem("geoattend_remember_session", "false");
+          localStorage.removeItem("geoattend_saved_role");
+          localStorage.removeItem("geoattend_saved_email");
+        }
+      } catch {
+        // Storage restricted
+      }
+
+      toast.success("Location Lock Verified", `Accessing ${targetRole.toUpperCase()} workspace.`);
       
       const targetPath =
         tokens.role === "faculty"
@@ -109,12 +201,29 @@ export default function LoginPage() {
       
       router.push(targetPath);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Invalid credentials";
+      const isNetworkError =
+        err instanceof TypeError ||
+        (err instanceof Error &&
+          (err.message.includes("Failed to fetch") ||
+            err.message.includes("NetworkError") ||
+            err.message.includes("Load failed")));
+
+      const msg = isNetworkError
+        ? "Campus mesh gateway is connecting. Please retry in a few moments."
+        : err instanceof Error
+        ? err.message
+        : "Invalid credentials";
+
       setError(msg);
       toast.error("Authentication Error", msg);
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    await executeLogin(email, password, activeRole);
   }
 
   const selectDemoAccount = (roleKey: "admin" | "faculty" | "student", demoEmail: string, demoPass: string) => {
@@ -124,10 +233,21 @@ export default function LoginPage() {
     setError("");
   };
 
+  const handleRoleDoubleClick = (acc: (typeof demoAccounts)[number]) => {
+    selectDemoAccount(acc.role, acc.email, acc.pass);
+    executeLogin(acc.email, acc.pass, acc.role);
+  };
+
   const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
     setter(value);
     setIsTyping(true);
     setTimeout(() => setIsTyping(false), 800);
+  };
+
+  const handlePasswordKeyAction = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.getModifierState) {
+      setCapsLockActive(e.getModifierState("CapsLock"));
+    }
   };
 
   const springTransition = { type: "spring" as const, stiffness: 280, damping: 25 };
@@ -254,14 +374,14 @@ export default function LoginPage() {
                   transition={springTransition}
                   className="absolute inset-0 flex items-center justify-center"
                 >
-                  <div className="relative w-full max-w-sm h-48 flex items-center justify-center">
-                    <div className="absolute top-4 left-6 p-2.5 rounded-xl border border-emerald-500/30 bg-obsidian-950/80 text-[11px] font-mono text-emerald-300 backdrop-blur-md shadow-lg">
+                  <div className="relative w-full max-w-sm h-48 flex items-center justify-center pointer-events-auto">
+                    <div className="absolute top-4 left-6 p-2.5 rounded-xl border border-emerald-500/30 bg-obsidian-950/80 text-[11px] font-mono text-emerald-300 backdrop-blur-md shadow-lg transition-transform hover:scale-105 cursor-default">
                       📍 Campus Alpha • Core
                     </div>
-                    <div className="absolute bottom-6 right-8 p-2.5 rounded-xl border border-cyan-500/30 bg-obsidian-950/80 text-[11px] font-mono text-cyan-300 backdrop-blur-md shadow-lg">
+                    <div className="absolute bottom-6 right-8 p-2.5 rounded-xl border border-cyan-500/30 bg-obsidian-950/80 text-[11px] font-mono text-cyan-300 backdrop-blur-md shadow-lg transition-transform hover:scale-105 cursor-default">
                       🏛️ Campus Beta • Connected
                     </div>
-                    <div className="absolute top-10 right-10 p-2.5 rounded-xl border border-indigo-500/30 bg-obsidian-950/80 text-[11px] font-mono text-indigo-300 backdrop-blur-md shadow-lg">
+                    <div className="absolute top-10 right-10 p-2.5 rounded-xl border border-indigo-500/30 bg-obsidian-950/80 text-[11px] font-mono text-indigo-300 backdrop-blur-md shadow-lg transition-transform hover:scale-105 cursor-default">
                       🛡️ AI Sentinel: 0.00% Risk
                     </div>
                   </div>
@@ -346,28 +466,46 @@ export default function LoginPage() {
 
           {/* Role Preset Tabs */}
           <div className="space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
-              Role Scope (Demo):
-            </span>
-            <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-obsidian-900/80 border border-white/5 backdrop-blur-xl">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
+                Role Scope (Demo):
+              </span>
+              <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                {demoAccounts.find((a) => a.role === activeRole)?.badge}
+              </span>
+            </div>
+            <div className="relative grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-obsidian-900/80 border border-white/5 backdrop-blur-xl">
               {demoAccounts.map((acc) => {
                 const isSelected = activeRole === acc.role;
                 return (
                   <button
                     key={acc.role}
                     type="button"
-                    onClick={() => selectDemoAccount(acc.role as any, acc.email, acc.pass)}
-                    className={`py-2 px-2 rounded-xl text-xs font-semibold transition-all ${
+                    onClick={() => selectDemoAccount(acc.role, acc.email, acc.pass)}
+                    onDoubleClick={() => handleRoleDoubleClick(acc)}
+                    title="Click to select · Double-click to launch directly"
+                    className={`relative z-10 py-2 px-2 rounded-xl text-xs font-semibold transition-colors duration-200 cursor-pointer ${
                       isSelected
-                        ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30"
+                        ? "text-white"
                         : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
                     }`}
                   >
-                    {acc.label}
+                    {isSelected && (
+                      <motion.div
+                        layoutId="activeRoleIndicator"
+                        transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                        className="absolute inset-0 rounded-xl bg-emerald-600 shadow-lg shadow-emerald-600/30 -z-10"
+                      />
+                    )}
+                    <span>{acc.label}</span>
                   </button>
                 );
               })}
             </div>
+            <p className="text-[11px] text-slate-500 font-mono px-1">
+              {demoAccounts.find((a) => a.role === activeRole)?.description}
+            </p>
           </div>
 
           {/* Integrated Inputs Form */}
@@ -384,31 +522,42 @@ export default function LoginPage() {
               aria-label="Institutional Email"
             />
 
-            <Input
-              label="Password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••••••"
-              value={password}
-              onChange={(e) => handleInputChange(setPassword, e.target.value)}
-              leftIcon={<Lock className="h-4 w-4 text-slate-400" />}
-              rightIcon={
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="hover:text-slate-200 transition-colors p-1 focus:outline-none"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-slate-400" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-slate-400" />
-                  )}
-                </button>
-              }
-              className="cinematic-input"
-              required
-              aria-label="Password"
-            />
+            <div className="space-y-1">
+              <Input
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••••••"
+                value={password}
+                onChange={(e) => handleInputChange(setPassword, e.target.value)}
+                onKeyDown={handlePasswordKeyAction}
+                onKeyUp={handlePasswordKeyAction}
+                leftIcon={<Lock className="h-4 w-4 text-slate-400" />}
+                rightIcon={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="hover:text-emerald-400 text-slate-400 transition-colors p-1 focus:outline-none"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    title={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                }
+                className="cinematic-input"
+                required
+                aria-label="Password"
+              />
+              {capsLockActive && (
+                <div className="flex items-center gap-1.5 text-[11px] font-mono text-amber-400 pl-1 pt-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  <span>Caps Lock is ON</span>
+                </div>
+              )}
+            </div>
 
             {/* Remember Me & Forgot Password Row */}
             <div className="flex items-center justify-between text-xs pt-1">
@@ -423,7 +572,10 @@ export default function LoginPage() {
               </label>
               <button
                 type="button"
-                onClick={() => setForgotModalOpen(true)}
+                onClick={() => {
+                  setResetEmail(email);
+                  setForgotModalOpen(true);
+                }}
                 className="font-medium text-slate-400 hover:text-white transition-colors"
               >
                 Forgot password?
@@ -442,11 +594,23 @@ export default function LoginPage() {
               type="submit"
               variant="emerald"
               size="lg"
-              className="w-full mt-2 shadow-xl shadow-emerald-600/20 group"
+              className="w-full mt-2 shadow-xl shadow-emerald-600/20 group cursor-pointer"
               isLoading={loading}
               rightIcon={<ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
             >
-              {loading ? "Verifying Geofence..." : "Authenticate & Launch Workspace"}
+              {loading
+                ? loadingStep === 0
+                  ? "Verifying Geofence..."
+                  : loadingStep === 1
+                  ? "Connecting to Gateway..."
+                  : "Syncing Mesh Security..."
+                : `Authenticate & Launch ${
+                    activeRole === "admin"
+                      ? "Admin"
+                      : activeRole === "faculty"
+                      ? "Faculty"
+                      : "Student"
+                  } Workspace`}
             </Button>
           </form>
 
@@ -491,11 +655,15 @@ export default function LoginPage() {
       {/* Forgot Password Modal */}
       <AnimatePresence>
         {forgotModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#06080d]/80 backdrop-blur-md">
+          <div
+            onClick={() => setForgotModalOpen(false)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#06080d]/80 backdrop-blur-md"
+          >
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={springTransition}
               className="relative w-full max-w-md rounded-2xl border border-white/10 bg-obsidian-900 p-6 shadow-2xl space-y-4"
             >
@@ -503,32 +671,42 @@ export default function LoginPage() {
               <p className="text-xs text-slate-400">
                 Enter your institutional email address and we will send a password reset token.
               </p>
-              <Input
-                type="email"
-                placeholder="user@university.edu"
-                defaultValue={email}
-                leftIcon={<Mail className="h-4 w-4 text-slate-400" />}
-                className="cinematic-input"
-              />
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setForgotModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="emerald"
-                  size="sm"
-                  onClick={() => {
-                    toast.info("Reset email sent", "Check your institutional inbox.");
-                    setForgotModalOpen(false);
-                  }}
-                >
-                  Send Reset Link
-                </Button>
-              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  toast.info("Reset email sent", "Check your institutional inbox.");
+                  setForgotModalOpen(false);
+                }}
+                className="space-y-4"
+              >
+                <Input
+                  type="email"
+                  placeholder="user@university.edu"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  leftIcon={<Mail className="h-4 w-4 text-slate-400" />}
+                  className="cinematic-input"
+                  required
+                  autoFocus
+                />
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setForgotModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="emerald"
+                    size="sm"
+                  >
+                    Send Reset Link
+                  </Button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}

@@ -26,7 +26,7 @@ void main() {
     expect(find.text('Email Address'), findsOneWidget);
     expect(find.text('Password'), findsOneWidget);
     expect(find.text('Student'), findsOneWidget);
-    expect(find.text('Faculty (HOD)'), findsOneWidget);
+    expect(find.text('Faculty'), findsOneWidget);
     expect(find.text('Admin'), findsOneWidget);
   });
 

@@ -239,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () => _fillCredentials('student@geoattend.ai', 'Student@12345'),
                       ),
                       ActionChip(
-                        label: const Text('Faculty (HOD)', style: TextStyle(fontSize: 11)),
+                        label: const Text('Faculty', style: TextStyle(fontSize: 11)),
                         backgroundColor: AppTheme.surfaceDark,
                         side: const BorderSide(color: Color(0xFF334155)),
                         onPressed: () => _fillCredentials('faculty@geoattend.ai', 'Faculty@12345'),

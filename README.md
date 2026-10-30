@@ -105,7 +105,7 @@ flutter run
 | Persona | Email | Password | Access / Responsibility |
 | :--- | :--- | :--- | :--- |
 | **Admin** | `admin@geoattend.ai` | `Admin@12345` | Campus-Wide System Administration |
-| **Faculty (HOD)** | `faculty@geoattend.ai` | `Faculty@12345` | Subject Faculty + Active HOD (CS Department) |
+| **Faculty** | `faculty@geoattend.ai` | `Faculty@12345` | Subject Faculty + Department Access |
 | **Faculty 2** | `faculty2@geoattend.ai` | `Faculty@12345` | Subject Faculty |
 | **Student** | `student@geoattend.ai` | `Student@12345` | Enrolled in CSD-A, Group B1 |
 
