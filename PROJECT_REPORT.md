@@ -54,7 +54,268 @@ graph TD
 
 ---
 
-## 3. End-to-End Workflow (How It Works)
+## 3. Database Schema & Entity Relationship (ER) Diagram
+
+GeoAttend AI uses an enterprise relational database schema with **22 tables** partitioned into 4 core functional domains. Foreign keys, composite unique constraints, and cascade delete rules ensure total data integrity.
+
+### Visual ER Diagram (Mermaid Architecture)
+
+```mermaid
+erDiagram
+    %% IAM & User Profiles
+    USERS ||--o| STUDENT_PROFILES : "1:1 profile"
+    USERS ||--o| FACULTY_PROFILES : "1:1 profile"
+    USERS ||--o{ AUDIT_LOGS : "performs"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    
+    %% Institutional Hierarchy
+    COLLEGES ||--o{ CAMPUSES : "operates"
+    COLLEGES ||--o{ COURSES : "offers"
+    COLLEGES ||--o{ USERS : "employs/enrolls"
+    CAMPUSES ||--o{ DEPARTMENTS : "houses"
+    CAMPUSES ||--o{ ROOMS : "contains"
+    
+    %% Academic Structure
+    DEPARTMENTS ||--o{ BRANCHES : "administers"
+    DEPARTMENTS ||--o{ FACULTY_PROFILES : "employs"
+    DEPARTMENTS ||--o{ SUBJECTS : "teaches"
+    COURSES ||--o{ BRANCHES : "branches_into"
+    BRANCHES ||--o{ BATCHES : "admits"
+    BATCHES ||--o{ SECTIONS : "divides_into"
+    SECTIONS ||--o{ STUDENT_GROUPS : "splits_into"
+    
+    %% Enrollments
+    STUDENT_PROFILES ||--o{ ACADEMIC_ENROLLMENTS : "enrolled_in"
+    COURSES ||--o{ ACADEMIC_ENROLLMENTS : "categorizes"
+    SECTIONS ||--o{ ACADEMIC_ENROLLMENTS : "groups"
+    
+    %% Curriculum & Scheduling
+    SUBJECTS ||--o{ SUBJECT_OFFERINGS : "offered_as"
+    SECTIONS ||--o{ SUBJECT_OFFERINGS : "assigned_to"
+    SUBJECT_OFFERINGS ||--o{ FACULTY_ASSIGNMENTS : "teaches"
+    FACULTY_PROFILES ||--o{ FACULTY_ASSIGNMENTS : "assigned_to"
+    SUBJECT_OFFERINGS ||--o{ TIMETABLE_ENTRIES : "scheduled_in"
+    FACULTY_ASSIGNMENTS ||--o{ TIMETABLE_ENTRIES : "instructed_by"
+    
+    %% Attendance Sessions & Verification
+    FACULTY_PROFILES ||--o{ ATTENDANCE_SESSIONS : "conducts"
+    SECTIONS ||--o{ ATTENDANCE_SESSIONS : "attends"
+    TIMETABLE_ENTRIES ||--o{ ATTENDANCE_SESSIONS : "instantiates"
+    ATTENDANCE_SESSIONS ||--o{ QR_SESSIONS : "rotates_token"
+    
+    %% Telemetry & AI Fraud Detection
+    ATTENDANCE_SESSIONS ||--o{ ATTENDANCE_RECORDS : "logs"
+    STUDENT_PROFILES ||--o{ ATTENDANCE_RECORDS : "submits"
+    ATTENDANCE_RECORDS ||--o| SUSPICIOUS_ACTIVITIES : "triggers_if_anomaly"
+    STUDENT_PROFILES ||--o{ ATTENDANCE_APPLICATIONS : "applies_for_leave"
+    SUBJECT_OFFERINGS ||--o{ ATTENDANCE_APPLICATIONS : "applies_to"
+
+    USERS {
+        int id PK
+        int college_id FK
+        string email UK
+        string full_name
+        string role "admin | faculty | student"
+        boolean is_active
+    }
+
+    STUDENT_PROFILES {
+        int id PK
+        int user_id FK "1:1 UK"
+        string roll_number UK
+        string enrollment_number
+        string device_id "Hardware UUID"
+    }
+
+    FACULTY_PROFILES {
+        int id PK
+        int user_id FK "1:1 UK"
+        int department_id FK
+        string employee_id UK
+        string designation
+    }
+
+    COLLEGES {
+        int id PK
+        string name
+        string code UK
+        string city
+        string country
+    }
+
+    CAMPUSES {
+        int id PK
+        int college_id FK
+        string name
+        float latitude
+        float longitude
+        int geofence_radius_meters
+    }
+
+    DEPARTMENTS {
+        int id PK
+        int campus_id FK
+        string name
+        string code
+    }
+
+    COURSES {
+        int id PK
+        string name
+        string code UK
+        int duration_years
+        int total_semesters
+    }
+
+    BRANCHES {
+        int id PK
+        int department_id FK
+        int course_id FK
+        string name
+        string code
+    }
+
+    BATCHES {
+        int id PK
+        int branch_id FK
+        string name
+        int start_year
+        int end_year
+    }
+
+    SECTIONS {
+        int id PK
+        int batch_id FK
+        string name
+        int capacity
+    }
+
+    STUDENT_GROUPS {
+        int id PK
+        int section_id FK
+        string name
+    }
+
+    ACADEMIC_ENROLLMENTS {
+        int id PK
+        int student_id FK
+        int course_id FK
+        int branch_id FK
+        int batch_id FK
+        int section_id FK
+        int semester
+        string academic_year
+        string status "active | completed"
+    }
+
+    SUBJECTS {
+        int id PK
+        int department_id FK
+        string name
+        string code UK
+        int credits
+    }
+
+    SUBJECT_OFFERINGS {
+        int id PK
+        int subject_id FK
+        int course_id FK
+        int section_id FK
+        int semester
+        string class_type "theory | lab"
+    }
+
+    FACULTY_ASSIGNMENTS {
+        int id PK
+        int faculty_id FK
+        int subject_offering_id FK
+        boolean is_primary
+    }
+
+    TIMETABLE_ENTRIES {
+        int id PK
+        int subject_offering_id FK
+        int faculty_assignment_id FK
+        int section_id FK
+        string day_of_week
+        time start_time
+        time end_time
+        string room_number
+    }
+
+    ROOMS {
+        int id PK
+        int campus_id FK
+        string name
+        float latitude
+        float longitude
+        int geofence_radius_meters
+    }
+
+    ATTENDANCE_SESSIONS {
+        int id PK
+        int faculty_id FK
+        int section_id FK
+        int timetable_entry_id FK
+        string status "active | completed"
+        datetime started_at
+        datetime ended_at
+        float geofence_latitude
+        float geofence_longitude
+        int geofence_radius_meters
+    }
+
+    QR_SESSIONS {
+        int id PK
+        int attendance_session_id FK
+        string token UK
+        datetime expires_at
+    }
+
+    ATTENDANCE_RECORDS {
+        int id PK
+        int session_id FK
+        int student_id FK
+        string status "present | absent | late"
+        datetime marked_at
+        float latitude
+        float longitude
+        float distance_meters
+        string device_id
+        boolean is_suspicious
+        string verification_json
+    }
+
+    SUSPICIOUS_ACTIVITIES {
+        int id PK
+        int attendance_record_id FK
+        int student_id FK
+        int session_id FK
+        float risk_score "0 - 100"
+        string detection_method "gps | device | multi_signal"
+        string reason
+        string review_status "pending | confirmed | dismissed"
+        int reviewed_by FK
+    }
+
+    ATTENDANCE_APPLICATIONS {
+        int id PK
+        int student_id FK
+        int subject_offering_id FK
+        string reason
+        string status "pending | approved | rejected"
+        int faculty_reviewer_id FK
+    }
+```
+
+### High-Resolution Rendered Diagram Image
+A rendered graphical screenshot is provided in the root directory:
+* File link: [`screenshot_5_er_diagram.png`](file:///Users/apple/Projects/geoattend-ai/screenshot_5_er_diagram.png) *(223 KB high-resolution database schema preview)*
+* Standalone interactive viewer: [`erd.html`](file:///Users/apple/Projects/geoattend-ai/erd.html)
+
+---
+
+## 4. End-to-End Workflow (How It Works)
 
 ### Step 1: Academic Structure & Scheduling (SuperAdmin)
 * The institution administrator defines:
@@ -114,7 +375,7 @@ sequenceDiagram
 
 ---
 
-## 4. AI & Machine Learning Fraud Detection Engine
+## 5. AI & Machine Learning Fraud Detection Engine
 
 GeoAttend AI incorporates a **Hybrid Anomaly Detection Engine** (`HybridAnomalyEngine`):
 
@@ -139,7 +400,7 @@ GeoAttend AI incorporates a **Hybrid Anomaly Detection Engine** (`HybridAnomalyE
 
 ---
 
-## 5. User Roles & Modules
+## 6. User Roles & Modules
 
 | Role | Key Capabilities |
 |---|---|
@@ -149,7 +410,7 @@ GeoAttend AI incorporates a **Hybrid Anomaly Detection Engine** (`HybridAnomalyE
 
 ---
 
-## 6. Live Deployment & Deliverables
+## 7. Live Deployment & Deliverables
 
 The project is fully deployed, operational, and accessible:
 
@@ -157,14 +418,14 @@ The project is fully deployed, operational, and accessible:
 * **Backend Cloud API (Render):** [https://geoattend-api-0602.onrender.com](https://geoattend-api-0602.onrender.com)
   * Interactive Swagger Documentation: [`/docs`](https://geoattend-api-0602.onrender.com/docs)
   * System Health Check: [`/health`](https://geoattend-api-0602.onrender.com/health)
-* **Web Frontend (Vercel):** Deployed and auto-synced with GitHub.
+* **Web Frontend (Vercel):** [https://geo-attend-ai.vercel.app](https://geo-attend-ai.vercel.app)
 * **Mobile Client APK:** Android Release Build ready for sideloading and student distribution:
   * File location: [`GeoAttend-AI.apk`](file:///Users/apple/Projects/geoattend-ai/GeoAttend-AI.apk) *(50MB)*
   * Also available directly in the GitHub repository.
 
 ---
 
-## 7. Demo & Presentation Guidelines (For Viva / Project Showcase)
+## 8. Demo & Presentation Guidelines (For Viva / Project Showcase)
 
 When presenting this project to professors, examiners, or evaluators:
 
