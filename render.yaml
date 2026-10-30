@@ -12,7 +12,9 @@ services:
       - key: PYTHON_VERSION
         value: 3.12.8
       - key: DATABASE_URL
-        value: sqlite:///./geoattend.db
+        fromDatabase:
+          name: geoattend-db
+          property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: APP_ENV
@@ -25,3 +27,9 @@ services:
         value: "60"
       - key: REFRESH_TOKEN_EXPIRE_DAYS
         value: "30"
+
+databases:
+  - name: geoattend-db
+    plan: free
+    databaseName: geoattend
+    user: geoattend

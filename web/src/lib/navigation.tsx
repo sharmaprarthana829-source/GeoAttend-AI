@@ -10,15 +10,13 @@ import {
   Bell,
   Settings,
   CheckCircle2,
-  UserPlus,
   FileText,
-  ShieldAlert,
   Building2,
   FileSpreadsheet,
   Award,
   Megaphone,
   GraduationCap,
-  Sparkles,
+  QrCode,
 } from "lucide-react";
 import { User, UserRole } from "@/lib/api";
 
@@ -35,37 +33,33 @@ const studentRoles: UserRole[] = ["student"];
 
 const adminNav: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" />, roles: ["admin", "faculty", "student"] },
-  { label: "Academic Structure", href: "/dashboard/academic", icon: <Grid className="h-5 w-5" />, roles: adminRoles },
+  { label: "Attendance Monitor", href: "/dashboard/attendance", icon: <Clock className="h-5 w-5" />, roles: ["admin", "faculty"] },
   { label: "Students & Devices", href: "/dashboard/students", icon: <Users className="h-5 w-5" />, roles: adminRoles },
-  { label: "Faculty & Roles", href: "/dashboard/faculty", icon: <Building2 className="h-5 w-5" />, roles: ["admin", "faculty"] },
+  { label: "Faculty & Staff", href: "/dashboard/faculty", icon: <Building2 className="h-5 w-5" />, roles: ["admin", "faculty"] },
+  { label: "Academic Structure", href: "/dashboard/academic", icon: <Grid className="h-5 w-5" />, roles: adminRoles },
   { label: "Subjects & Offerings", href: "/dashboard/subjects", icon: <BookOpen className="h-5 w-5" />, roles: adminRoles },
   { label: "Timetable & Rooms", href: "/dashboard/timetable", icon: <CalendarDays className="h-5 w-5" />, roles: adminRoles },
-  { label: "Attendance Monitor", href: "/dashboard/attendance", icon: <Clock className="h-5 w-5" />, roles: ["admin", "faculty"] },
-  { label: "Applications Desk", href: "/dashboard/applications", icon: <FileText className="h-5 w-5" />, roles: ["admin", "faculty", "student"] },
-  { label: "Notice Board", href: "/dashboard/notices", icon: <Megaphone className="h-5 w-5" />, roles: ["admin", "faculty", "student"] },
-  { label: "Notifications", href: "/dashboard/notifications", icon: <Bell className="h-5 w-5" />, roles: ["admin", "faculty", "student"] },
+  { label: "Leave Applications", href: "/dashboard/applications", icon: <FileText className="h-5 w-5" />, roles: ["admin", "faculty", "student"] },
   { label: "Reports & Analytics", href: "/dashboard/reports", icon: <BarChart3 className="h-5 w-5" />, roles: adminRoles },
+  { label: "Notice Board", href: "/dashboard/notices", icon: <Megaphone className="h-5 w-5" />, roles: ["admin", "faculty", "student"] },
   { label: "System Settings", href: "/dashboard/settings", icon: <Settings className="h-5 w-5" />, roles: adminRoles },
-  { label: "Audit Log Desk", href: "/dashboard/audit", icon: <FileSpreadsheet className="h-5 w-5" />, roles: adminRoles },
 ];
 
 const facultyBaseNav: NavItem[] = [
   { label: "Dashboard", href: "/dashboard/faculty", icon: <LayoutDashboard className="h-5 w-5" />, roles: ["faculty", "admin"] },
-  { label: "My Timetable", href: "/dashboard/faculty/timetable", icon: <CalendarDays className="h-5 w-5" />, roles: ["faculty", "admin"] },
-  { label: "My Classes", href: "/dashboard/faculty/classes", icon: <BookOpen className="h-5 w-5" />, roles: ["faculty", "admin"] },
-  { label: "Attendance Management", href: "/dashboard/attendance-sessions", icon: <Clock className="h-5 w-5" />, roles: ["faculty", "admin"] },
+  { label: "Take Attendance", href: "/dashboard/attendance-sessions", icon: <QrCode className="h-5 w-5" />, roles: ["faculty", "admin"] },
   { label: "Attendance Monitor", href: "/dashboard/attendance", icon: <Clock className="h-5 w-5" />, roles: ["faculty", "admin"] },
-  { label: "Applications Review", href: "/dashboard/applications", icon: <FileText className="h-5 w-5" />, roles: ["faculty", "admin"] },
+  { label: "My Classes", href: "/dashboard/faculty/classes", icon: <BookOpen className="h-5 w-5" />, roles: ["faculty", "admin"] },
+  { label: "My Timetable", href: "/dashboard/faculty/timetable", icon: <CalendarDays className="h-5 w-5" />, roles: ["faculty", "admin"] },
+  { label: "Leave Applications", href: "/dashboard/applications", icon: <FileText className="h-5 w-5" />, roles: ["faculty", "admin"] },
   { label: "Notice Board", href: "/dashboard/notices", icon: <Megaphone className="h-5 w-5" />, roles: ["faculty", "admin", "student"] },
-  { label: "Notifications", href: "/dashboard/notifications", icon: <Bell className="h-5 w-5" />, roles: ["faculty", "admin", "student"] },
 ];
 
 const studentNav: NavItem[] = [
   { label: "Dashboard", href: "/dashboard/student", icon: <LayoutDashboard className="h-5 w-5" />, roles: ["student", "admin"] },
   { label: "My Attendance", href: "/dashboard/my-attendance", icon: <CheckCircle2 className="h-5 w-5" />, roles: studentRoles },
-  { label: "My Applications", href: "/dashboard/applications", icon: <FileText className="h-5 w-5" />, roles: studentRoles },
+  { label: "Leave Applications", href: "/dashboard/applications", icon: <FileText className="h-5 w-5" />, roles: studentRoles },
   { label: "Notice Board", href: "/dashboard/notices", icon: <Megaphone className="h-5 w-5" />, roles: studentRoles },
-  { label: "Notifications", href: "/dashboard/notifications", icon: <Bell className="h-5 w-5" />, roles: studentRoles },
 ];
 
 export function getNavigationForRole(user: User | null) {
@@ -77,7 +71,6 @@ export function getNavigationForRole(user: User | null) {
       (r) => r.responsibility_type === "coordinator" && r.is_active
     );
     if (isCoordinator) {
-      // Insert Coordinator Desk right after My Classes
       nav.splice(3, 0, {
         label: "Coordinator Desk",
         href: "/dashboard/faculty/coordinator",
@@ -110,12 +103,15 @@ export function getNavItemForPath(path: string, user?: User | null) {
     { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" />, roles: ["admin", "faculty", "student"] },
     { label: "Dashboard", href: "/dashboard/faculty", icon: <LayoutDashboard className="h-5 w-5" />, roles: ["faculty", "admin"] },
     { label: "Dashboard", href: "/dashboard/student", icon: <LayoutDashboard className="h-5 w-5" />, roles: ["student", "admin"] },
+    { label: "Take Attendance", href: "/dashboard/attendance-sessions", icon: <QrCode className="h-5 w-5" />, roles: ["faculty", "admin"] },
+    { label: "Attendance Monitor", href: "/dashboard/attendance", icon: <Clock className="h-5 w-5" />, roles: ["faculty", "admin"] },
     { label: "Coordinator Desk", href: "/dashboard/faculty/coordinator", icon: <GraduationCap className="h-5 w-5" />, roles: ["faculty", "admin"] },
     { label: "My Timetable", href: "/dashboard/faculty/timetable", icon: <CalendarDays className="h-5 w-5" />, roles: ["faculty", "admin"] },
     { label: "My Classes", href: "/dashboard/faculty/classes", icon: <BookOpen className="h-5 w-5" />, roles: ["faculty", "admin"] },
-    { label: "Attendance Management", href: "/dashboard/attendance-sessions", icon: <Clock className="h-5 w-5" />, roles: ["faculty", "admin"] },
     { label: "Attendance History", href: "/dashboard/faculty/attendance", icon: <Clock className="h-5 w-5" />, roles: ["faculty", "admin"] },
     { label: "HOD Decisions", href: "/dashboard/hod", icon: <Award className="h-5 w-5" />, roles: ["faculty", "admin"] },
+    { label: "Notifications", href: "/dashboard/notifications", icon: <Bell className="h-5 w-5" />, roles: ["admin", "faculty", "student"] },
+    { label: "Audit Log Desk", href: "/dashboard/audit", icon: <FileSpreadsheet className="h-5 w-5" />, roles: adminRoles },
     ...adminNav,
     ...facultyBaseNav,
     ...studentNav,

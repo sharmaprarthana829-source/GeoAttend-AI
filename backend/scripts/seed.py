@@ -478,60 +478,6 @@ def seed() -> None:
             enrollment.is_current = True
             enrollment.status = EnrollmentStatus.ACTIVE
 
-        # 12b. Student 2 (Sneha Patel) in same Section CSD-A, Group B1
-        student2_user = db.query(User).filter(User.email == "student2@geoattend.ai").first()
-        if not student2_user:
-            student2_user = User(
-                college_id=college.id,
-                email="student2@geoattend.ai",
-                password_hash=get_password_hash("Student@12345"),
-                full_name="Sneha Patel",
-                role=UserRole.STUDENT,
-            )
-            db.add(student2_user)
-            db.flush()
-        else:
-            student2_user.is_active = True
-            db.flush()
-
-        student2 = db.query(StudentProfile).filter(StudentProfile.user_id == student2_user.id).first()
-        if not student2:
-            student2 = StudentProfile(
-                user_id=student2_user.id,
-                section_id=section.id,
-                current_group_id=group_b1.id,
-                roll_number="CS24A002",
-                enrollment_number="EN2024002",
-            )
-            db.add(student2)
-            db.flush()
-
-        enrollment2 = (
-            db.query(AcademicEnrollment)
-            .filter(
-                AcademicEnrollment.student_id == student2.id,
-                AcademicEnrollment.semester == 1,
-                AcademicEnrollment.academic_year == "2024-2025",
-            )
-            .first()
-        )
-        if not enrollment2:
-            enrollment2 = AcademicEnrollment(
-                student_id=student2.id,
-                course_id=course.id,
-                branch_id=branch.id,
-                batch_id=batch.id,
-                section_id=section.id,
-                student_group_id=group_b1.id,
-                semester=1,
-                academic_year="2024-2025",
-                status=EnrollmentStatus.ACTIVE,
-                is_current=True,
-            )
-            db.add(enrollment2)
-        else:
-            enrollment2.is_current = True
-            enrollment2.status = EnrollmentStatus.ACTIVE
 
         # 12c. Student 3 (Prarthana Sharma)
         prarthana_user = db.query(User).filter(User.email == "Prarthana@gmail.com").first()
