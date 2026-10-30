@@ -153,7 +153,7 @@ export default function ReportsPage() {
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-xl">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  Overall Attendance
+                  Overall Campus Attendance
                 </span>
                 <Percent className="h-5 w-5 text-emerald-400" />
               </div>
@@ -162,7 +162,7 @@ export default function ReportsPage() {
               </p>
               <div className="mt-2 flex items-center text-xs text-emerald-400 font-medium">
                 <TrendingUp className="h-3.5 w-3.5 mr-1" />
-                Campus Benchmark &gt; 75%
+                Minimum College Benchmark: 75%
               </div>
             </div>
 
@@ -177,7 +177,7 @@ export default function ReportsPage() {
                 {data.today_attendance_count}
               </p>
               <div className="mt-2 text-xs text-slate-400">
-                From {data.today_sessions_count} scheduled slots
+                Marked across {data.today_sessions_count} scheduled slots
               </div>
             </div>
 
@@ -192,14 +192,14 @@ export default function ReportsPage() {
                 {data.total_active_sessions}
               </p>
               <div className="mt-2 text-xs text-slate-400">
-                Conducted across campus rooms
+                Conducted in campus classrooms
               </div>
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-xl">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  Suspicious / ML Flags
+                  AI Flagged Anomalies
                 </span>
                 <ShieldAlert className="h-5 w-5 text-rose-400" />
               </div>
@@ -207,23 +207,26 @@ export default function ReportsPage() {
                 {data.total_suspicious_activities}
               </p>
               <div className="mt-2 text-xs text-rose-400/80">
-                {data.high_risk_anomalies} high risk flagged
+                {data.high_risk_anomalies} high-risk proxies prevented
               </div>
             </div>
           </div>
 
-          {/* Department Breakdown & Risk Distribution */}
+          {/* Department Breakdown & Weekly Attendance */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Department Performance */}
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-xl space-y-4">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-blue-400" />
-                Department-Wise Attendance Performance
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-blue-400" />
+                  Department-Wise Attendance
+                </h2>
+                <span className="text-xs text-slate-400">Target &gt; 75%</span>
+              </div>
               <div className="space-y-4 pt-2">
                 {data.department_attendance.length === 0 ? (
                   <p className="py-8 text-center text-sm text-slate-500">
-                    No active department records found.
+                    No active department records recorded yet.
                   </p>
                 ) : (
                   data.department_attendance.map((d) => (
@@ -232,14 +235,31 @@ export default function ReportsPage() {
                         <span className="font-semibold text-slate-200">
                           {d.department_name} ({d.department_code})
                         </span>
-                        <span className="font-mono font-bold text-emerald-400">
-                          {d.attendance_rate}%
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-slate-400">
+                            {d.student_count} enrolled
+                          </span>
+                          <span className={`font-mono font-bold ${
+                            d.attendance_rate >= 75
+                              ? "text-emerald-400"
+                              : d.attendance_rate >= 50
+                              ? "text-amber-400"
+                              : "text-rose-400"
+                          }`}>
+                            {d.attendance_rate}%
+                          </span>
+                        </div>
                       </div>
                       <div className="h-2.5 w-full rounded-full bg-slate-800 overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all duration-500"
-                          style={{ width: `${Math.min(100, Math.max(0, d.attendance_rate))}%` }}
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            d.attendance_rate >= 75
+                              ? "bg-gradient-to-r from-emerald-500 to-teal-400"
+                              : d.attendance_rate >= 50
+                              ? "bg-gradient-to-r from-amber-500 to-yellow-400"
+                              : "bg-gradient-to-r from-rose-500 to-red-400"
+                          }`}
+                          style={{ width: `${Math.min(100, Math.max(d.attendance_rate > 0 ? 5 : 0, d.attendance_rate))}%` }}
                         />
                       </div>
                     </div>
@@ -248,54 +268,56 @@ export default function ReportsPage() {
               </div>
             </div>
 
-            {/* Anomaly & Risk Breakdown */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-xl space-y-4">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <ShieldAlert className="h-5 w-5 text-amber-400" />
-                AI & ML Proxy Anomaly Pipeline
-              </h2>
-              <div className="grid grid-cols-2 gap-4 pt-2">
-                <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-                  <span className="text-xs text-slate-400 uppercase">Pending Review</span>
-                  <p className="mt-1 text-2xl font-bold text-amber-400">
-                    {data.risk_distribution.pending_review}
-                  </p>
+            {/* Weekly Trend & AI Sentinel Overview */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-xl space-y-5">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-emerald-400" />
+                    Weekly Attendance Trend
+                  </h2>
+                  <span className="text-xs text-slate-400">Current Week</span>
                 </div>
-                <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-                  <span className="text-xs text-slate-400 uppercase">Confirmed Fraud</span>
-                  <p className="mt-1 text-2xl font-bold text-rose-400">
-                    {data.risk_distribution.confirmed_fraud}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-                  <span className="text-xs text-slate-400 uppercase">Dismissed Cases</span>
-                  <p className="mt-1 text-2xl font-bold text-emerald-400">
-                    {data.risk_distribution.dismissed}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-                  <span className="text-xs text-slate-400 uppercase">High Risk &gt;70</span>
-                  <p className="mt-1 text-2xl font-bold text-purple-400">
-                    {data.risk_distribution.high_risk}
-                  </p>
+                <div className="flex items-end justify-between gap-3 h-28 pt-4 pb-1 border-t border-slate-800/80">
+                  {data.attendance_by_day.map((day) => (
+                    <div key={day.day} className="flex-1 flex flex-col items-center gap-2">
+                      <span className="text-[11px] font-mono text-emerald-400 font-semibold">{day.rate}%</span>
+                      <div className="w-full bg-slate-800 rounded-t h-16 flex items-end">
+                        <div
+                          className="w-full bg-gradient-to-t from-blue-600 to-emerald-400 rounded-t transition-all duration-500"
+                          style={{ height: `${Math.min(100, Math.max(6, (day.rate / 100) * 100))}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-slate-300 font-medium">{day.day}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="pt-2">
-                <div className="flex justify-between text-xs text-slate-400 mb-2">
-                  <span>Weekly Attendance Trend</span>
+              {/* AI Sentinel Autonomous Protection Summary */}
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-950/20 p-4 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                    AI Autonomous Fraud Prevention Active
+                  </span>
+                  <span className="text-[11px] font-mono font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    Zero Review
+                  </span>
                 </div>
-                <div className="flex items-end justify-between gap-2 h-24 pt-4 border-t border-slate-800/80">
-                  {data.attendance_by_day.map((day) => (
-                    <div key={day.day} className="flex-1 flex flex-col items-center gap-1.5">
-                      <span className="text-[10px] font-mono text-emerald-400">{day.rate}%</span>
-                      <div
-                        className="w-full bg-blue-500/80 rounded-t transition-all duration-500"
-                        style={{ height: `${Math.min(50, Math.max(4, (day.rate / 100) * 50))}px` }}
-                      />
-                      <span className="text-xs text-slate-400 font-medium">{day.day}</span>
-                    </div>
-                  ))}
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Every check-in is evaluated against GPS distance (100m geofence), phone hardware binding, and 15s rotating QR codes. Verified records are approved in real time.
+                </p>
+                <div className="pt-1 flex items-center justify-between text-xs text-slate-400">
+                  <span>Official Attendance Audit</span>
+                  <button
+                    onClick={handleExportCSV}
+                    disabled={exporting}
+                    className="text-emerald-400 hover:text-emerald-300 font-semibold underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Download className="h-3 w-3" />
+                    Download CSV
+                  </button>
                 </div>
               </div>
             </div>

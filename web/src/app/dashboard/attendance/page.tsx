@@ -112,9 +112,13 @@ export default function AttendanceMonitorPage() {
 
   // ── 1. Initial Load: Academic Hierarchy & Stats ──
   useEffect(() => {
+    try {
+      localStorage.removeItem("geoattend_simulated_attendance");
+    } catch {
+      // Storage restricted
+    }
     loadHierarchyStructure();
     loadStats();
-    loadLocalSimulatedRecords();
   }, []);
 
   // ── 2. Reload when tab or filters change ──
@@ -267,16 +271,10 @@ export default function AttendanceMonitorPage() {
         limit: pageSize,
         offset,
       });
-
-      // Merge with simulated check-ins if any
-      const localSimulated = getStoredSimulatedRecords();
-      const combined = mergeRecords(res || [], localSimulated);
-      setRecords(combined);
+      setRecords(res || []);
     } catch (err: any) {
       console.error("Failed to load attendance records:", err);
-      // Fallback to simulated local records if backend offline
-      const localSimulated = getStoredSimulatedRecords();
-      setRecords(localSimulated);
+      setRecords([]);
     } finally {
       setRecordsLoading(false);
     }
@@ -302,8 +300,7 @@ export default function AttendanceMonitorPage() {
         limit: pageSize,
         offset,
       });
-      const localSimulated = getStoredSimulatedRecords();
-      setRecords(mergeRecords(res || [], localSimulated));
+      if (res) setRecords(res);
     } catch {
       // silent
     }
@@ -339,235 +336,6 @@ export default function AttendanceMonitorPage() {
     } catch {
       // silent
     }
-  }
-
-  // ── 4. "Take Attendance for 6 Students" Simulation Function ──
-  // Creates 6 student attendance records (5 Verified Green, 1 Suspicious Red)
-  // Immediately visible in Attendance Monitor!
-  function handleTakeAttendance6Students() {
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    const targetDept = departments.find((d) => d.id === selectedDeptId)?.name || "Computer Science";
-    const targetBranch = branches.find((b) => b.id === selectedBranchId)?.name || "B.Tech CSE";
-    const targetSection = sections.find((s) => s.id === selectedSectionId)?.name || "Section A";
-    const targetBatch = batches.find((bg) => bg.id === selectedBatchId)?.name || "Batch B1";
-
-    const baseSessionId = sessions[0]?.id || 101;
-    const baseSubject = sessions[0]?.subject_name || "Data Structures & Algorithms";
-    const baseCode = sessions[0]?.subject_code || "CS201";
-
-    const sixStudents: AdminAttendanceRecordItem[] = [
-      {
-        id: Date.now() + 1,
-        session_id: baseSessionId,
-        student_id: 1001,
-        student_name: "Aarav Sharma",
-        roll_number: "CS-2024-001",
-        enrollment_number: "EN2024CS001",
-        subject_name: baseSubject,
-        subject_code: baseCode,
-        faculty_name: "Dr. Alok Verma",
-        section_name: targetSection,
-        student_group_name: targetBatch,
-        class_type: "Theory",
-        status: "present",
-        is_manually_adjusted: false,
-        marked_at: now.toISOString(),
-        check_in_time: timeStr,
-        distance_meters: 11.4,
-        latitude: 28.5355,
-        longitude: 77.391,
-        device_id: "iPhone-15-Pro-6A92",
-        is_suspicious: false,
-        suspicion_reason: null,
-        gps_status: "verified",
-        device_status: "verified",
-      },
-      {
-        id: Date.now() + 2,
-        session_id: baseSessionId,
-        student_id: 1002,
-        student_name: "Priya Patel",
-        roll_number: "CS-2024-002",
-        enrollment_number: "EN2024CS002",
-        subject_name: baseSubject,
-        subject_code: baseCode,
-        faculty_name: "Dr. Alok Verma",
-        section_name: targetSection,
-        student_group_name: targetBatch,
-        class_type: "Theory",
-        status: "present",
-        is_manually_adjusted: false,
-        marked_at: now.toISOString(),
-        check_in_time: timeStr,
-        distance_meters: 16.8,
-        latitude: 28.5356,
-        longitude: 77.3912,
-        device_id: "Pixel-8-Pro-B41F",
-        is_suspicious: false,
-        suspicion_reason: null,
-        gps_status: "verified",
-        device_status: "verified",
-      },
-      {
-        id: Date.now() + 3,
-        session_id: baseSessionId,
-        student_id: 1003,
-        student_name: "Rohan Gupta",
-        roll_number: "CS-2024-003",
-        enrollment_number: "EN2024CS003",
-        subject_name: baseSubject,
-        subject_code: baseCode,
-        faculty_name: "Dr. Alok Verma",
-        section_name: targetSection,
-        student_group_name: targetBatch,
-        class_type: "Theory",
-        status: "present",
-        is_manually_adjusted: false,
-        marked_at: now.toISOString(),
-        check_in_time: timeStr,
-        distance_meters: 8.2,
-        latitude: 28.5354,
-        longitude: 77.3911,
-        device_id: "Galaxy-S24-9C10",
-        is_suspicious: false,
-        suspicion_reason: null,
-        gps_status: "verified",
-        device_status: "verified",
-      },
-      {
-        id: Date.now() + 4,
-        session_id: baseSessionId,
-        student_id: 1004,
-        student_name: "Vikram Malhotra",
-        roll_number: "CS-2024-004",
-        enrollment_number: "EN2024CS004",
-        subject_name: baseSubject,
-        subject_code: baseCode,
-        faculty_name: "Dr. Alok Verma",
-        section_name: targetSection,
-        student_group_name: targetBatch,
-        class_type: "Theory",
-        status: "present",
-        is_manually_adjusted: false,
-        marked_at: now.toISOString(),
-        check_in_time: timeStr,
-        distance_meters: 425.0,
-        latitude: 28.5398,
-        longitude: 77.3975,
-        device_id: "Device-Mismatch-CloneX",
-        is_suspicious: true,
-        suspicion_reason: "AI Anomaly: 425m outside Geofence boundary. Mock Location Provider / Proxy signal detected.",
-        gps_status: "mismatch",
-        device_status: "unregistered",
-      },
-      {
-        id: Date.now() + 5,
-        session_id: baseSessionId,
-        student_id: 1005,
-        student_name: "Ananya Singh",
-        roll_number: "CS-2024-005",
-        enrollment_number: "EN2024CS005",
-        subject_name: baseSubject,
-        subject_code: baseCode,
-        faculty_name: "Dr. Alok Verma",
-        section_name: targetSection,
-        student_group_name: targetBatch,
-        class_type: "Theory",
-        status: "present",
-        is_manually_adjusted: false,
-        marked_at: now.toISOString(),
-        check_in_time: timeStr,
-        distance_meters: 14.2,
-        latitude: 28.5355,
-        longitude: 77.3913,
-        device_id: "OnePlus-12-88AD",
-        is_suspicious: false,
-        suspicion_reason: null,
-        gps_status: "verified",
-        device_status: "verified",
-      },
-      {
-        id: Date.now() + 6,
-        session_id: baseSessionId,
-        student_id: 1006,
-        student_name: "Kabir Mehta",
-        roll_number: "CS-2024-006",
-        enrollment_number: "EN2024CS006",
-        subject_name: baseSubject,
-        subject_code: baseCode,
-        faculty_name: "Dr. Alok Verma",
-        section_name: targetSection,
-        student_group_name: targetBatch,
-        class_type: "Theory",
-        status: "present",
-        is_manually_adjusted: false,
-        marked_at: now.toISOString(),
-        check_in_time: timeStr,
-        distance_meters: 19.5,
-        latitude: 28.5357,
-        longitude: 77.3914,
-        device_id: "iPad-Mini-E521",
-        is_suspicious: false,
-        suspicion_reason: null,
-        gps_status: "verified",
-        device_status: "verified",
-      },
-    ];
-
-    // Store in localStorage
-    saveSimulatedRecords(sixStudents);
-
-    // Update state directly
-    setRecords((prev) => mergeRecords(sixStudents, prev));
-    setActiveTab("records");
-
-    toast.success(
-      "Attendance Recorded for 6 Students!",
-      `Processed: 5 AI Verified (Green) · 1 AI Flagged (Red) for ${targetSection} (${targetBatch}).`
-    );
-    setActionSuccess("6 Student check-ins successfully logged. Autonomous AI Sentinel processed results.");
-  }
-
-  // Local storage helpers
-  function getStoredSimulatedRecords(): AdminAttendanceRecordItem[] {
-    try {
-      if (typeof window === "undefined") return [];
-      const data = localStorage.getItem("geoattend_simulated_attendance");
-      return data ? JSON.parse(data) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  function saveSimulatedRecords(newRecords: AdminAttendanceRecordItem[]) {
-    try {
-      if (typeof window === "undefined") return;
-      const existing = getStoredSimulatedRecords();
-      const combined = [...newRecords, ...existing].slice(0, 100);
-      localStorage.setItem("geoattend_simulated_attendance", JSON.stringify(combined));
-    } catch {
-      // Ignore
-    }
-  }
-
-  function loadLocalSimulatedRecords() {
-    const existing = getStoredSimulatedRecords();
-    if (existing.length > 0) {
-      setRecords((prev) => mergeRecords(existing, prev));
-    }
-  }
-
-  function mergeRecords(a: AdminAttendanceRecordItem[], b: AdminAttendanceRecordItem[]): AdminAttendanceRecordItem[] {
-    const seen = new Set<number>();
-    const res: AdminAttendanceRecordItem[] = [];
-    for (const r of [...a, ...b]) {
-      if (!seen.has(r.id)) {
-        seen.add(r.id);
-        res.push(r);
-      }
-    }
-    return res;
   }
 
   // Open Student Attendance Modal for a session
@@ -650,16 +418,6 @@ export default function AttendanceMonitorPage() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          {/* Prominent Quick Action to Take Attendance for 6 Students */}
-          <Button
-            onClick={handleTakeAttendance6Students}
-            variant="emerald"
-            className="flex items-center gap-2 text-xs font-semibold shadow-lg shadow-emerald-600/20 cursor-pointer"
-          >
-            <Zap className="h-3.5 w-3.5" />
-            Take Attendance (6 Students Demo)
-          </Button>
-
           <Button
             onClick={() => {
               loadStats();
@@ -996,16 +754,19 @@ export default function AttendanceMonitorPage() {
                           </div>
                           <h3 className="text-base font-semibold text-white">No Attendance Records Yet</h3>
                           <p className="text-xs text-slate-400 leading-relaxed">
-                            No attendance marked for this filter. Click the button below to instantly simulate taking attendance for 6 students.
+                            No attendance records match your filter. Live attendance scanned by students via their mobile app will automatically appear here in real time.
                           </p>
                           <Button
-                            onClick={handleTakeAttendance6Students}
-                            variant="emerald"
+                            onClick={() => {
+                              loadStats();
+                              loadRecords();
+                            }}
+                            variant="outline"
                             size="sm"
-                            className="mt-2 text-xs gap-1.5"
+                            className="mt-2 text-xs gap-1.5 border-slate-700 text-slate-300 hover:text-white"
                           >
-                            <Zap className="h-3.5 w-3.5" />
-                            Take Attendance for 6 Students Now
+                            <RefreshCw className="h-3.5 w-3.5 text-emerald-400" />
+                            Refresh Records
                           </Button>
                         </div>
                       </td>
