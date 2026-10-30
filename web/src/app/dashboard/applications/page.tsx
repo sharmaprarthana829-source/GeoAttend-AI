@@ -463,15 +463,15 @@ export default function ApplicationsPage() {
       {/* ── Page Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <nav className="text-xs text-slate-400 mb-1">Dashboard / Applications Desk</nav>
+          <nav className="text-xs text-slate-400 mb-1">Dashboard / Leave Applications</nav>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
-            <FileText className="w-7 h-7 text-emerald-400" />
-            Applications Desk & Attendance Condonation
+            <FileText className="w-6 h-6 text-emerald-400" />
+            Leave & Attendance Applications
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            {isStudent && "Submit attendance condonation requests, medical leaves, and track multi-stage review progress."}
-            {isFaculty && "Multi-stage workflow: Assigned Faculty Review → Section Coordinator Review → HOD Final Decision."}
-            {isAdmin && "Institution-wide attendance applications desk, multi-stage approval queue, and condonation monitoring."}
+            {isStudent && "Submit attendance condonation requests, medical leaves, and track review status."}
+            {isFaculty && "Review and approve student leave requests and attendance condonation."}
+            {isAdmin && "Manage and track student leave applications and condonation status."}
           </p>
         </div>
 
@@ -558,84 +558,45 @@ export default function ApplicationsPage() {
         </div>
       )}
 
-      {/* ── Dynamic KPI Summary Cards (6 Distinct Workflow Buckets) ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <Card className="p-3.5 border-slate-800/80 bg-surface-900/80 hover:border-slate-700 transition">
+      {/* ── Dynamic KPI Summary Cards (3 Clean Metrics) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Card className="p-4 border-slate-800/80 bg-surface-900/80 hover:border-slate-700 transition">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium text-slate-400">Total Applications</span>
-            <FileText className="w-3.5 h-3.5 text-slate-400" />
+            <span className="text-xs font-medium text-slate-400">Total Applications</span>
+            <FileText className="w-4 h-4 text-slate-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-bold text-white font-mono">
-              {stats ? stats.total_applications : "—"}
+              {stats ? stats.total_applications : applications.length}
             </span>
           </div>
-          <p className="text-[10px] text-slate-500 mt-1">Unique records</p>
+          <p className="text-[11px] text-slate-500 mt-1">Submitted student requests</p>
         </Card>
 
-        <Card className="p-3.5 border-amber-900/40 bg-surface-900/80 hover:border-amber-700/50 transition">
+        <Card className="p-4 border-amber-900/40 bg-surface-900/80 hover:border-amber-700/50 transition">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium text-amber-400">Pending Faculty</span>
-            <Clock className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-xs font-medium text-amber-400">Pending Review</span>
+            <Clock className="w-4 h-4 text-amber-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-bold text-amber-300 font-mono">
-              {stats ? stats.pending_faculty : "—"}
+              {stats ? (stats.pending_faculty || 0) + (stats.pending_coordinator || 0) + (stats.pending_hod || 0) : "0"}
             </span>
           </div>
-          <p className="text-[10px] text-slate-500 mt-1">Stage 1: Subject review</p>
+          <p className="text-[11px] text-slate-500 mt-1">Awaiting approval</p>
         </Card>
 
-        <Card className="p-3.5 border-sky-900/40 bg-surface-900/80 hover:border-sky-700/50 transition">
+        <Card className="p-4 border-emerald-950 bg-surface-900/80 hover:border-emerald-800/60 transition">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium text-sky-400">Pending Coordinator</span>
-            <UserCheck className="w-3.5 h-3.5 text-sky-400" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-sky-300 font-mono">
-              {stats ? stats.pending_coordinator : "—"}
-            </span>
-          </div>
-          <p className="text-[10px] text-slate-500 mt-1">Stage 2: Section review</p>
-        </Card>
-
-        <Card className="p-3.5 border-blue-900/40 bg-surface-900/80 hover:border-blue-700/50 transition">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium text-blue-400">Pending HOD</span>
-            <Building2 className="w-3.5 h-3.5 text-blue-400" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-blue-300 font-mono">
-              {stats ? stats.pending_hod : "—"}
-            </span>
-          </div>
-          <p className="text-[10px] text-slate-500 mt-1">Stage 3: Final decision</p>
-        </Card>
-
-        <Card className="p-3.5 border-emerald-950 bg-surface-900/80 hover:border-emerald-800/60 transition">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium text-emerald-400">Approved & Condoned</span>
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="text-xs font-medium text-emerald-400">Approved & Condoned</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-bold text-emerald-400 font-mono">
-              {stats ? stats.approved : "—"}
+              {stats ? stats.approved : "0"}
             </span>
           </div>
-          <p className="text-[10px] text-slate-500 mt-1">Exam eligibility granted</p>
-        </Card>
-
-        <Card className="p-3.5 border-rose-950 bg-surface-900/80 hover:border-rose-800/60 transition">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium text-rose-400">Rejected</span>
-            <XCircle className="w-3.5 h-3.5 text-rose-400" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-rose-400 font-mono">
-              {stats ? stats.rejected : "—"}
-            </span>
-          </div>
-          <p className="text-[10px] text-slate-500 mt-1">Denied after review</p>
+          <p className="text-[11px] text-slate-500 mt-1">Granted exam eligibility</p>
         </Card>
       </div>
 
@@ -761,40 +722,35 @@ export default function ApplicationsPage() {
       {/* ── Responsive Applications Table ── */}
       <Card className="p-0 border-slate-800/80 bg-surface-900/70 overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm table-auto min-w-[1250px]">
+          <table className="w-full text-sm table-auto">
             <thead>
               <tr className="text-left text-xs text-slate-400 bg-surface-950/60 border-b border-slate-800/80 font-medium">
-                <th className="py-3.5 px-4 font-mono w-16">ID</th>
-                <th className="py-3.5 px-4 w-44">Student</th>
-                <th className="py-3.5 px-4 w-44">Subject & Section</th>
-                <th className="py-3.5 px-4 w-32">Type</th>
-                <th className="py-3.5 px-4 min-w-[200px]">Reason & Details</th>
-                <th className="py-3.5 px-4 w-36">Attendance & Eligibility</th>
-                <th className="py-3.5 px-4 w-36">Workflow Status</th>
-                <th className="py-3.5 px-4 w-32">Faculty (S1)</th>
-                <th className="py-3.5 px-4 w-32">Coordinator (S2)</th>
-                <th className="py-3.5 px-4 w-36">HOD (S3)</th>
-                <th className="py-3.5 px-4 text-right w-44">Actions</th>
+                <th className="py-3.5 px-4">Student</th>
+                <th className="py-3.5 px-4">Subject & Class</th>
+                <th className="py-3.5 px-4">Type & Reason</th>
+                <th className="py-3.5 px-4">Attendance Impact</th>
+                <th className="py-3.5 px-4">Status</th>
+                <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60">
               {loading && applications.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="py-14 text-center text-slate-400">
+                  <td colSpan={6} className="py-14 text-center text-slate-400">
                     <div className="flex flex-col items-center justify-center gap-3">
                       <RefreshCw className="w-6 h-6 animate-spin text-emerald-400" />
-                      <p className="text-sm">Loading attendance applications from backend...</p>
+                      <p className="text-sm">Loading attendance applications...</p>
                     </div>
                   </td>
                 </tr>
               ) : filteredApplications.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="py-14 text-center text-slate-400">
+                  <td colSpan={6} className="py-14 text-center text-slate-400">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <FileText className="w-8 h-8 text-slate-500" />
-                      <p className="text-sm text-slate-300 font-medium">No applications found matching your criteria.</p>
+                      <p className="text-sm text-slate-300 font-medium">No applications found.</p>
                       <p className="text-xs text-slate-500">
-                        Try resetting your search query or adjusting the workflow status and date filters.
+                        Try resetting your search query or adjusting filters.
                       </p>
                     </div>
                   </td>
@@ -813,15 +769,10 @@ export default function ApplicationsPage() {
 
                   return (
                     <tr key={app.id} className="hover:bg-surface-800/40 transition">
-                      {/* Application ID */}
-                      <td className="py-3.5 px-4 font-mono text-xs text-slate-400 font-semibold">
-                        #{app.id}
-                      </td>
-
                       {/* Student */}
                       <td className="py-3.5 px-4">
                         <p className="font-medium text-white">{app.student_name || `Student #${app.student_id}`}</p>
-                        <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                        <span className="text-[11px] font-mono text-emerald-400">
                           {app.student_roll_number || "N/A"}
                         </span>
                       </td>
@@ -834,18 +785,11 @@ export default function ApplicationsPage() {
                         </p>
                       </td>
 
-                      {/* Application Type */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        {getCategoryBadge(app.application_type)}
-                      </td>
-
-                      {/* Reason & Explanation */}
+                      {/* Application Type & Reason */}
                       <td className="py-3.5 px-4 max-w-xs">
-                        <p className="text-xs font-medium text-slate-200 truncate" title={app.reason}>
+                        <div className="mb-1">{getCategoryBadge(app.application_type)}</div>
+                        <p className="text-xs text-slate-300 truncate" title={app.reason}>
                           {app.reason}
-                        </p>
-                        <p className="text-[11px] text-slate-400 truncate mt-0.5" title={app.description}>
-                          {app.description}
                         </p>
                       </td>
 
@@ -880,69 +824,9 @@ export default function ApplicationsPage() {
                         </div>
                       </td>
 
-                      {/* Workflow Status */}
+                      {/* Status */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         {getStatusBadge(app.status)}
-                      </td>
-
-                      {/* Faculty Decision */}
-                      <td className="py-3.5 px-4 text-xs whitespace-nowrap">
-                        {app.faculty_decision ? (
-                          <div>
-                            <span
-                              className={`font-semibold text-xs ${
-                                app.faculty_decision === "approved" ? "text-emerald-400" : "text-rose-400"
-                              }`}
-                            >
-                              {app.faculty_decision === "approved" ? "APPROVED" : "REJECTED"}
-                            </span>
-                            {app.faculty_reviewer_name && (
-                              <p className="text-[11px] text-slate-400 truncate">{app.faculty_reviewer_name}</p>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-slate-500">—</span>
-                        )}
-                      </td>
-
-                      {/* Coordinator Decision */}
-                      <td className="py-3.5 px-4 text-xs whitespace-nowrap">
-                        {app.coordinator_decision ? (
-                          <div>
-                            <span
-                              className={`font-semibold text-xs ${
-                                app.coordinator_decision === "approved" ? "text-emerald-400" : "text-rose-400"
-                              }`}
-                            >
-                              {app.coordinator_decision === "approved" ? "APPROVED" : "REJECTED"}
-                            </span>
-                            {app.coordinator_reviewer_name && (
-                              <p className="text-[11px] text-slate-400 truncate">{app.coordinator_reviewer_name}</p>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-slate-500">—</span>
-                        )}
-                      </td>
-
-                      {/* HOD Decision */}
-                      <td className="py-3.5 px-4 text-xs whitespace-nowrap">
-                        {app.hod_decision ? (
-                          <div>
-                            <span
-                              className={`font-semibold text-xs ${
-                                app.hod_decision === "approved" ? "text-emerald-400" : "text-rose-400"
-                              }`}
-                            >
-                              {app.hod_decision === "approved" ? "CONDONED" : "REJECTED"}
-                            </span>
-                            {app.hod_reviewer_name && (
-                              <p className="text-[11px] text-slate-400 truncate">{app.hod_reviewer_name}</p>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-slate-500">—</span>
-                        )}
                       </td>
 
                       {/* Actions */}
@@ -956,7 +840,7 @@ export default function ApplicationsPage() {
                             title="View full details and audit history"
                           >
                             <Eye className="w-3.5 h-3.5 mr-1" />
-                            Details
+                            View
                           </Button>
 
                           {canFacultyReview && (
@@ -977,7 +861,7 @@ export default function ApplicationsPage() {
                               className="bg-sky-600 hover:bg-sky-500 text-white text-xs px-2.5 h-7"
                               title="Stage 2: Review as Section Coordinator"
                             >
-                              Coord Review
+                              Review
                             </Button>
                           )}
 
@@ -988,7 +872,7 @@ export default function ApplicationsPage() {
                               className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-2.5 h-7"
                               title="Stage 3: Final Decision as Head of Department"
                             >
-                              HOD Decision
+                              Decision
                             </Button>
                           )}
                         </div>

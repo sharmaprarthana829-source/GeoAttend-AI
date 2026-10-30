@@ -259,10 +259,10 @@ export default function SubjectsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <nav className="text-xs text-slate-400 mb-1">Dashboard / Academic Curriculum</nav>
-          <h1 className="text-2xl font-bold text-white">Subject Master & Faculty Assignments</h1>
+          <nav className="text-xs text-slate-400 mb-1">Dashboard / Subjects</nav>
+          <h1 className="text-2xl font-bold text-white">Subjects & Faculty Assignments</h1>
           <p className="text-sm text-slate-400 mt-1">
-            Central Subject Catalog → Academic Subject Offerings → Verified Faculty Assignment Engine.
+            Manage academic course subjects, offerings, and teacher assignments.
           </p>
         </div>
 
@@ -283,7 +283,7 @@ export default function SubjectsPage() {
             className="bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 text-xs"
           >
             <Plus className="h-4 w-4" />
-            Add {activeTab === "master" ? "Master Subject" : activeTab === "offerings" ? "Subject Offering" : "Faculty Assignment"}
+            Add {activeTab === "master" ? "Subject" : activeTab === "offerings" ? "Offering" : "Assignment"}
           </Button>
         </div>
       </div>
@@ -474,11 +474,9 @@ export default function SubjectsPage() {
             <table className="w-full text-sm table-auto">
               <thead>
                 <tr className="text-left text-xs text-slate-400 border-b border-slate-800/80 sticky top-0 bg-surface-900/90 backdrop-blur-md">
-                  <th className="py-3 pr-4 font-semibold">Subject ID</th>
-                  <th className="py-3 pr-4 font-semibold">Subject Name</th>
-                  <th className="py-3 pr-4 font-semibold">Subject Code</th>
-                  <th className="py-3 pr-4 font-semibold">Credits</th>
+                  <th className="py-3 pr-4 font-semibold">Subject & Code</th>
                   <th className="py-3 pr-4 font-semibold">Department</th>
+                  <th className="py-3 pr-4 font-semibold">Credits</th>
                   <th className="py-3 pr-4 font-semibold">Active Offerings</th>
                   <th className="py-3 pr-4 font-semibold">Status</th>
                   <th className="py-3 pr-4 font-semibold text-right">Actions</th>
@@ -487,7 +485,7 @@ export default function SubjectsPage() {
               <tbody className={cn("divide-y divide-slate-800/60", loading && "opacity-60")}>
                 {loading && (
                   <tr>
-                    <td colSpan={8} className="py-8">
+                    <td colSpan={6} className="py-8">
                       <div className="h-2 w-full bg-slate-800/40 rounded animate-pulse" />
                     </td>
                   </tr>
@@ -495,30 +493,31 @@ export default function SubjectsPage() {
 
                 {!loading && filteredSubjects.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-slate-400">
-                      No master subjects found. Click <strong>+ Add Master Subject</strong> to register one.
+                    <td colSpan={6} className="py-12 text-center text-slate-400">
+                      No master subjects found. Click <strong>+ Add Subject</strong> to register one.
                     </td>
                   </tr>
                 )}
 
                 {filteredSubjects.map((s) => (
                   <tr key={s.id} className="hover:bg-surface-800/40 transition-colors">
-                    <td className="py-3 pr-4 font-mono text-xs text-slate-400">#{s.id}</td>
-                    <td className="py-3 pr-4 font-medium text-white">{s.name}</td>
-                    <td className="py-3 pr-4 font-mono font-bold text-xs text-emerald-400">
-                      <span className="px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/20">
-                        {s.code}
-                      </span>
-                    </td>
-                    <td className="py-3 pr-4 text-xs font-semibold text-slate-200">
-                      {s.credits} Credits
+                    <td className="py-3 pr-4">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-white">{s.name}</span>
+                        <span className="px-2 py-0.5 rounded font-mono font-bold text-xs bg-emerald-950/60 text-emerald-400 border border-emerald-500/20">
+                          {s.code}
+                        </span>
+                      </div>
                     </td>
                     <td className="py-3 pr-4 text-xs text-slate-300">
                       {s.department_name || "General"}
                     </td>
-                    <td className="py-3 pr-4 text-xs font-mono text-center">
+                    <td className="py-3 pr-4 text-xs font-semibold text-slate-200">
+                      {s.credits} Credits
+                    </td>
+                    <td className="py-3 pr-4 text-xs font-mono">
                       <span className="px-2 py-0.5 rounded bg-surface-950 text-slate-300 border border-slate-800">
-                        {s.offerings_count ?? 0}
+                        {s.offerings_count ?? 0} active
                       </span>
                     </td>
                     <td className="py-3 pr-4">
@@ -560,14 +559,9 @@ export default function SubjectsPage() {
             <table className="w-full text-sm table-auto">
               <thead>
                 <tr className="text-left text-xs text-slate-400 border-b border-slate-800/80 sticky top-0 bg-surface-900/90 backdrop-blur-md">
-                  <th className="py-3 pr-4 font-semibold">Offering ID</th>
-                  <th className="py-3 pr-4 font-semibold">Subject Name & Code</th>
+                  <th className="py-3 pr-4 font-semibold">Subject & Code</th>
                   <th className="py-3 pr-4 font-semibold">Course & Branch</th>
-                  <th className="py-3 pr-4 font-semibold">Batch</th>
-                  <th className="py-3 pr-4 font-semibold">Semester</th>
-                  <th className="py-3 pr-4 font-semibold">Section / Group</th>
-                  <th className="py-3 pr-4 font-semibold">Class Type</th>
-                  <th className="py-3 pr-4 font-semibold">Academic Year</th>
+                  <th className="py-3 pr-4 font-semibold">Semester & Section</th>
                   <th className="py-3 pr-4 font-semibold">Assigned Faculty</th>
                   <th className="py-3 pr-4 font-semibold">Status</th>
                   <th className="py-3 pr-4 font-semibold text-right">Actions</th>
@@ -576,7 +570,7 @@ export default function SubjectsPage() {
               <tbody className={cn("divide-y divide-slate-800/60", loading && "opacity-60")}>
                 {loading && (
                   <tr>
-                    <td colSpan={11} className="py-8">
+                    <td colSpan={6} className="py-8">
                       <div className="h-2 w-full bg-slate-800/40 rounded animate-pulse" />
                     </td>
                   </tr>
@@ -584,61 +578,53 @@ export default function SubjectsPage() {
 
                 {!loading && filteredOfferings.length === 0 && (
                   <tr>
-                    <td colSpan={11} className="py-12 text-center text-slate-400">
-                      No subject offerings found. Click <strong>+ Add Subject Offering</strong> to instantiate one.
+                    <td colSpan={6} className="py-12 text-center text-slate-400">
+                      No subject offerings found. Click <strong>+ Add Offering</strong> to create one.
                     </td>
                   </tr>
                 )}
 
                 {filteredOfferings.map((o) => (
                   <tr key={o.id} className="hover:bg-surface-800/40 transition-colors">
-                    <td className="py-3 pr-4 font-mono text-xs text-slate-400">#{o.id}</td>
                     <td className="py-3 pr-4">
-                      <p className="font-semibold text-white">{o.subject_name || "Unknown Subject"}</p>
-                      <p className="font-mono text-xs text-emerald-400">{o.subject_code || "—"}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-white">{o.subject_name || "Unknown Subject"}</span>
+                        <span className="font-mono text-xs text-emerald-400 px-1.5 py-0.5 rounded bg-surface-950 border border-slate-800">
+                          {o.subject_code || "—"}
+                        </span>
+                        <span
+                          className={cn(
+                            "px-1.5 py-0.5 rounded text-[10px] uppercase font-bold",
+                            o.class_type === "lab"
+                              ? "bg-amber-950/70 text-amber-300 border border-amber-500/30"
+                              : "bg-surface-800 text-slate-300 border border-slate-700"
+                          )}
+                        >
+                          {o.class_type}
+                        </span>
+                      </div>
                     </td>
                     <td className="py-3 pr-4 text-xs">
                       <p className="text-slate-200 font-medium">{o.branch_name || "—"}</p>
                       <p className="text-slate-400">{o.course_name || "—"}</p>
                     </td>
-                    <td className="py-3 pr-4 text-xs text-slate-300">
-                      {o.batch_name || o.academic_year || "—"}
-                    </td>
-                    <td className="py-3 pr-4 font-mono text-xs font-semibold text-slate-200">
-                      Sem {o.semester}
-                    </td>
                     <td className="py-3 pr-4 text-xs">
-                      <span className="text-slate-200 font-medium">Sec {o.section_name || "—"}</span>
+                      <span className="text-slate-200 font-medium">Sem {o.semester} · Sec {o.section_name || "—"}</span>
                       {o.student_group_name && (
                         <span className="text-emerald-400 ml-1 font-mono">(Grp {o.student_group_name})</span>
                       )}
                     </td>
-                    <td className="py-3 pr-4">
-                      <span
-                        className={cn(
-                          "px-2 py-0.5 rounded text-xs uppercase font-bold",
-                          o.class_type === "lab"
-                            ? "bg-amber-950/70 text-amber-300 border border-amber-500/30"
-                            : "bg-surface-800 text-slate-200 border border-slate-700"
-                        )}
-                      >
-                        {o.class_type}
-                      </span>
-                    </td>
-                    <td className="py-3 pr-4 font-mono text-xs text-slate-300">
-                      {o.academic_year || "—"}
-                    </td>
                     <td className="py-3 pr-4 text-xs">
                       {o.assigned_faculty_names && o.assigned_faculty_names.length > 0 ? (
-                        <div className="flex flex-col gap-0.5">
+                        <div className="flex flex-wrap gap-1">
                           {o.assigned_faculty_names.map((name, i) => (
-                            <span key={i} className="text-emerald-300 font-medium flex items-center gap-1">
-                              • {name}
+                            <span key={i} className="text-emerald-300 font-medium bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-500/20 text-[11px]">
+                              {name}
                             </span>
                           ))}
                         </div>
                       ) : (
-                        <span className="text-slate-500 italic">None assigned</span>
+                        <span className="text-slate-500 italic text-[11px]">Unassigned</span>
                       )}
                     </td>
                     <td className="py-3 pr-4">
@@ -680,14 +666,10 @@ export default function SubjectsPage() {
             <table className="w-full text-sm table-auto">
               <thead>
                 <tr className="text-left text-xs text-slate-400 border-b border-slate-800/80 sticky top-0 bg-surface-900/90 backdrop-blur-md">
-                  <th className="py-3 pr-4 font-semibold">Assignment ID</th>
                   <th className="py-3 pr-4 font-semibold">Faculty Member</th>
-                  <th className="py-3 pr-4 font-semibold">Employee ID</th>
-                  <th className="py-3 pr-4 font-semibold">Subject Offering</th>
-                  <th className="py-3 pr-4 font-semibold">Subject Code</th>
-                  <th className="py-3 pr-4 font-semibold">Branch & Semester</th>
-                  <th className="py-3 pr-4 font-semibold">Section / Group</th>
-                  <th className="py-3 pr-4 font-semibold">Assignment Role</th>
+                  <th className="py-3 pr-4 font-semibold">Subject & Code</th>
+                  <th className="py-3 pr-4 font-semibold">Class & Section</th>
+                  <th className="py-3 pr-4 font-semibold">Role</th>
                   <th className="py-3 pr-4 font-semibold">Status</th>
                   <th className="py-3 pr-4 font-semibold text-right">Actions</th>
                 </tr>
@@ -695,7 +677,7 @@ export default function SubjectsPage() {
               <tbody className={cn("divide-y divide-slate-800/60", loading && "opacity-60")}>
                 {loading && (
                   <tr>
-                    <td colSpan={10} className="py-8">
+                    <td colSpan={6} className="py-8">
                       <div className="h-2 w-full bg-slate-800/40 rounded animate-pulse" />
                     </td>
                   </tr>
@@ -703,15 +685,14 @@ export default function SubjectsPage() {
 
                 {!loading && filteredAssignments.length === 0 && (
                   <tr>
-                    <td colSpan={10} className="py-12 text-center text-slate-400">
-                      No faculty assignments found. Click <strong>+ Assign Faculty</strong> to connect teachers to offerings.
+                    <td colSpan={6} className="py-12 text-center text-slate-400">
+                      No faculty assignments found. Click <strong>+ Add Assignment</strong> to connect teachers to offerings.
                     </td>
                   </tr>
                 )}
 
                 {filteredAssignments.map((a) => (
                   <tr key={a.id} className="hover:bg-surface-800/40 transition-colors">
-                    <td className="py-3 pr-4 font-mono text-xs text-slate-400">#{a.id}</td>
                     <td className="py-3 pr-4">
                       <div className="flex items-center gap-2.5">
                         <div className="h-7 w-7 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center text-xs font-bold">
@@ -719,33 +700,29 @@ export default function SubjectsPage() {
                         </div>
                         <div>
                           <p className="font-semibold text-white">{a.faculty_name || "Faculty"}</p>
-                          <p className="text-[11px] text-slate-400">{a.faculty_designation || "Faculty Member"}</p>
+                          <p className="text-[11px] text-slate-400">
+                            {a.faculty_employee_id ? `${a.faculty_employee_id} · ` : ""}{a.faculty_designation || "Faculty Member"}
+                          </p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-3 pr-4 font-mono font-bold text-xs text-emerald-400">
-                      {a.faculty_employee_id || "—"}
-                    </td>
                     <td className="py-3 pr-4">
-                      <p className="font-semibold text-slate-200">{a.subject_name || "—"}</p>
-                      <p className="text-[11px] text-slate-400 uppercase font-mono">
-                        {a.class_type || "THEORY"} • Sem {a.semester || 1}
-                      </p>
-                    </td>
-                    <td className="py-3 pr-4 font-mono text-xs text-slate-300">
-                      <span className="px-2 py-0.5 rounded bg-surface-950 border border-slate-800">
-                        {a.subject_code || "—"}
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-semibold text-slate-200">{a.subject_name || "—"}</span>
+                        <span className="px-1.5 py-0.5 rounded font-mono text-[11px] bg-surface-950 border border-slate-800 text-slate-300">
+                          {a.subject_code || "—"}
+                        </span>
+                        <span className="text-[10px] uppercase font-mono px-1 py-0.5 rounded bg-surface-800 text-slate-400">
+                          {a.class_type || "THEORY"}
+                        </span>
+                      </div>
                     </td>
                     <td className="py-3 pr-4 text-xs">
                       <p className="text-slate-200">{a.branch_name || "—"}</p>
-                      <p className="text-slate-400">Sem {a.semester || "—"}</p>
-                    </td>
-                    <td className="py-3 pr-4 text-xs">
-                      <span className="text-slate-200 font-medium">Sec {a.section_name || "—"}</span>
-                      {a.student_group_name && (
-                        <span className="text-emerald-400 ml-1 font-mono">(Grp {a.student_group_name})</span>
-                      )}
+                      <p className="text-slate-400">
+                        Sem {a.semester || "—"} · Sec {a.section_name || "—"}
+                        {a.student_group_name && <span className="text-emerald-400 ml-1 font-mono">(Grp {a.student_group_name})</span>}
+                      </p>
                     </td>
                     <td className="py-3 pr-4">
                       <span

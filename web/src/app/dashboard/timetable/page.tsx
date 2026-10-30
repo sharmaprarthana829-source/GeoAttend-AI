@@ -251,14 +251,11 @@ export default function TimetablePage() {
           <nav className="text-xs text-slate-400 mb-1">Dashboard / Academic Schedule</nav>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-white tracking-tight">
-              Timetable Engine & Conflict Engine
+              Class Timetable &amp; Schedule
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              Live Conflict Validation
-            </span>
           </div>
-          <p className="text-sm text-slate-400 mt-1">
-            Deterministic interval overlap detection across Faculty assignments, Room bookings, and Student cohorts.
+          <p className="text-xs text-slate-400 mt-1">
+            Weekly class schedule, room allocations, and faculty lecture timings.
           </p>
         </div>
 
@@ -458,8 +455,6 @@ export default function TimetablePage() {
         </div>
       </Card>
 
-      {/* Colour Legend */}
-      <TimetableLegend />
 
       {/* Main Content: Table View OR Weekly Grid View */}
       {viewMode === "grid" ? (

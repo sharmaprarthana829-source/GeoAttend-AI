@@ -23,61 +23,43 @@ export function ConflictSummaryPanel({
   activeConflictFilter,
   onSelectFilter,
 }: ConflictSummaryPanelProps) {
+  const totalConflicts = summary.faculty_conflicts + summary.room_conflicts + summary.student_group_conflicts;
+
   const cards = [
     {
       id: "all",
-      label: "Total Schedule Entries",
+      label: "Total Classes",
       count: summary.total_entries,
-      subtext: summary.has_any_conflict ? "Conflicts detected" : "All scheduled",
+      subtext: "Scheduled this week",
       icon: CalendarDays,
-      color: "text-slate-300",
+      color: "text-white",
       activeBg: "bg-surface-800 border-emerald-500/50 shadow-emerald-500/10",
       iconBg: "bg-surface-700/60 text-emerald-400",
     },
     {
-      id: "faculty",
-      label: "Faculty Overlaps",
-      count: summary.faculty_conflicts,
-      subtext: "Instructor double-booked",
-      icon: UserX,
-      color: "text-amber-400",
-      activeBg: "bg-amber-950/40 border-amber-500/60 shadow-amber-500/10",
-      iconBg: "bg-amber-500/20 text-amber-400",
-    },
-    {
-      id: "room",
-      label: "Room Collisions",
-      count: summary.room_conflicts,
-      subtext: "Same room occupied",
-      icon: DoorClosed,
-      color: "text-rose-400",
-      activeBg: "bg-rose-950/40 border-rose-500/60 shadow-rose-500/10",
-      iconBg: "bg-rose-500/20 text-rose-400",
-    },
-    {
-      id: "student_group",
-      label: "Group Collisions",
-      count: summary.student_group_conflicts,
-      subtext: "Cohort/section overlap",
-      icon: Users,
-      color: "text-purple-400",
-      activeBg: "bg-purple-950/40 border-purple-500/60 shadow-purple-500/10",
-      iconBg: "bg-purple-500/20 text-purple-400",
-    },
-    {
       id: "conflict_free",
-      label: "Conflict-Free Entries",
+      label: "Valid & Conflict-Free",
       count: summary.conflict_free,
-      subtext: "Clean valid schedule",
+      subtext: "Ready for attendance",
       icon: CheckCircle2,
       color: "text-emerald-400",
       activeBg: "bg-emerald-950/40 border-emerald-500/60 shadow-emerald-500/10",
       iconBg: "bg-emerald-500/20 text-emerald-400",
     },
+    {
+      id: "conflict",
+      label: "Room / Time Conflicts",
+      count: totalConflicts,
+      subtext: totalConflicts > 0 ? `${totalConflicts} overlap clashes` : "No clashes detected",
+      icon: AlertTriangle,
+      color: totalConflicts > 0 ? "text-amber-400" : "text-slate-400",
+      activeBg: "bg-amber-950/40 border-amber-500/60 shadow-amber-500/10",
+      iconBg: totalConflicts > 0 ? "bg-amber-500/20 text-amber-400" : "bg-slate-800 text-slate-500",
+    },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
       {cards.map((card) => {
         const Icon = card.icon;
         const isActive = activeConflictFilter === card.id;
@@ -105,15 +87,10 @@ export function ConflictSummaryPanel({
               <span className={`text-2xl font-bold font-mono tracking-tight ${card.color}`}>
                 {card.count}
               </span>
-              {card.id !== "all" && card.id !== "conflict_free" && card.count > 0 && (
-                <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300">
-                  Clash
-                </span>
-              )}
+              <span className="text-xs text-slate-500 font-medium">
+                {card.subtext}
+              </span>
             </div>
-            <p className="text-[11px] text-slate-400 mt-1 truncate">
-              {card.subtext}
-            </p>
           </button>
         );
       })}

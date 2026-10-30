@@ -496,10 +496,10 @@ export default function StudentsPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-white md:text-3xl">
-                Students & Hardware Devices
+                Students & Devices
               </h1>
-              <p className="text-xs text-slate-400 md:text-sm">
-                Complete student records, academic grouping, and strict 1-to-1 hardware UUID enforcement.
+              <p className="text-xs text-slate-400 md:text-sm mt-0.5">
+                Manage registered students, roll numbers, and device assignments.
               </p>
             </div>
           </div>
@@ -863,25 +863,14 @@ export default function StudentsPage() {
                     {/* Actions */}
                     <td className="px-5 py-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
-                        {/* View Details */}
-                        <button
-                          onClick={() => {
-                            setSelectedStudent(s);
-                            setIsViewModalOpen(true);
-                          }}
-                          title="View Complete Student Details"
-                          className="rounded-lg border border-slate-800 bg-slate-900 p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 transition"
-                        >
-                          <Eye className="h-3.5 w-3.5" />
-                        </button>
-
                         {/* Edit Student */}
                         <button
                           onClick={() => openEditModal(s)}
                           title="Edit Student Profile"
-                          className="rounded-lg border border-slate-800 bg-slate-900 p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                          className="rounded-lg border border-slate-800 bg-slate-900 px-2 py-1 text-xs text-slate-300 hover:text-white hover:bg-slate-800 transition inline-flex items-center gap-1"
                         >
-                          <Edit2 className="h-3.5 w-3.5" />
+                          <Edit2 className="h-3 w-3 text-slate-400" />
+                          Edit
                         </button>
 
                         {/* Device Actions */}
@@ -891,45 +880,22 @@ export default function StudentsPage() {
                               setSelectedStudent(s);
                               setIsResetDeviceModalOpen(true);
                             }}
-                            title="Unbind/Reset Device"
-                            className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 hover:bg-amber-500/20 transition"
+                            title="Reset Device Lock"
+                            className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs text-amber-400 hover:bg-amber-500/20 transition inline-flex items-center gap-1"
                           >
-                            <RotateCcw className="h-3.5 w-3.5" />
+                            <RotateCcw className="h-3 w-3" />
+                            Reset
                           </button>
                         ) : (
                           <button
                             onClick={() => openBindDeviceModal(s)}
                             title="Register / Bind Device"
-                            className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-1.5 text-emerald-400 hover:bg-emerald-500/20 transition"
+                            className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-400 hover:bg-emerald-500/20 transition inline-flex items-center gap-1"
                           >
-                            <Smartphone className="h-3.5 w-3.5" />
+                            <Smartphone className="h-3 w-3" />
+                            Bind
                           </button>
                         )}
-
-                        {/* Reset Password */}
-                        <button
-                          onClick={() => {
-                            setSelectedStudent(s);
-                            setIsPasswordModalOpen(true);
-                          }}
-                          title="Reset Password"
-                          className="rounded-lg border border-slate-800 bg-slate-900 p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 transition"
-                        >
-                          <KeyRound className="h-3.5 w-3.5" />
-                        </button>
-
-                        {/* Toggle Status */}
-                        <button
-                          onClick={() => handleToggleStatus(s)}
-                          title={s.is_active ? "Deactivate Student" : "Activate Student"}
-                          className="rounded-lg border border-slate-800 bg-slate-900 p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 transition"
-                        >
-                          {s.is_active ? (
-                            <UserX className="h-3.5 w-3.5 text-rose-400" />
-                          ) : (
-                            <UserCheck className="h-3.5 w-3.5 text-emerald-400" />
-                          )}
-                        </button>
 
                         {/* Delete Student */}
                         <button
@@ -937,7 +903,7 @@ export default function StudentsPage() {
                             setSelectedStudent(s);
                             setIsDeleteModalOpen(true);
                           }}
-                          title="Delete / Deactivate Student"
+                          title="Delete Student"
                           className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-1.5 text-rose-400 hover:bg-rose-500/20 transition"
                         >
                           <Trash2 className="h-3.5 w-3.5" />

@@ -396,28 +396,26 @@ export default function AttendanceMonitorPage() {
   return (
     <div className="space-y-6 pb-14">
       {/* Top Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <nav className="text-xs text-slate-400 mb-1 flex items-center gap-1.5 font-mono">
-            <span>Dashboard</span>
-            <span>/</span>
-            <span className="text-emerald-400 font-semibold">Attendance Monitor &amp; AI Sentinel</span>
-          </nav>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-            Campus Attendance &amp; AI Sentinel Monitor
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Autonomous Sentinel
-            </span>
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
+            <Clock className="h-6 w-6 text-emerald-400" />
+            Attendance Monitor
           </h1>
-          <p className="text-xs text-slate-400 mt-1 max-w-3xl">
-            Real-time unified attendance monitor. Verified records appear in{" "}
-            <span className="text-emerald-400 font-semibold">Green</span> and suspicious anomalies in{" "}
-            <span className="text-rose-400 font-semibold">Red</span>. Zero human review required—AI Sentinel autonomously predicts fraud verdicts in real time.
+          <p className="text-xs text-slate-400 mt-1">
+            Real-time campus attendance records. Legitimate scans appear in green, proxy anomalies in red.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-300">
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            {verifiedCount} Verified
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs font-semibold text-rose-300">
+            <span className="h-2 w-2 rounded-full bg-rose-400 animate-pulse" />
+            {flaggedCount} Flagged
+          </span>
           <Button
             onClick={() => {
               loadStats();
@@ -425,7 +423,8 @@ export default function AttendanceMonitorPage() {
               else loadSessions();
             }}
             variant="outline"
-            className="flex items-center gap-2 text-xs border-slate-700 bg-surface-900/60 hover:bg-surface-800 text-slate-200"
+            size="sm"
+            className="text-xs border-slate-800 bg-surface-900/60 hover:bg-surface-800 text-slate-200"
           >
             <RefreshCw className="h-3.5 w-3.5 text-emerald-400" />
             Refresh
@@ -433,167 +432,9 @@ export default function AttendanceMonitorPage() {
         </div>
       </div>
 
-      {/* AI Autonomous Sentinel Alert Ribbon */}
-      <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 via-surface-900/60 to-emerald-950/30 p-4 shadow-xl backdrop-blur-md flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 flex-shrink-0">
-            <Bot className="h-5 w-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-white tracking-tight">AI Autonomous Fraud Prevention Active</span>
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                100% UNIFIED
-              </span>
-            </div>
-            <p className="text-slate-400 text-[11px] mt-0.5">
-              Faculty &amp; Admin manual review bypassed. AI Sentinel automatically correlates GPS distance, hardware device bindings, and QR velocity to calculate risk verdicts.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 text-xs font-mono">
-          <span className="px-2.5 py-1 rounded-xl bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            {verifiedCount} Verified (Green)
-          </span>
-          <span className="px-2.5 py-1 rounded-xl bg-rose-950/60 border border-rose-500/30 text-rose-300 flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-rose-400 animate-pulse" />
-            {flaggedCount} Flagged (Red)
-          </span>
-        </div>
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* CASCADING ACADEMIC HIERARCHY SELECTOR: Department ➔ Branch ➔ Section ➔ Batch */}
-      {/* ─────────────────────────────────────────────────────────────────── */}
-      <Card className="p-4 border-slate-800/80 bg-surface-900/70 shadow-xl space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
-            <Layers className="h-4 w-4 text-emerald-400" />
-            <span>Academic Hierarchy Filter (Dept ➔ Branch ➔ Section ➔ Batch)</span>
-          </div>
-
-          {(selectedDeptId || selectedBranchId || selectedSectionId || selectedBatchId) && (
-            <button
-              onClick={resetHierarchy}
-              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-mono hover:underline"
-            >
-              <X className="h-3 w-3" /> Reset Hierarchy
-            </button>
-          )}
-        </div>
-
-        {/* 4 Cascading Dropdowns in Exact Order */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* 1. Department */}
-          <div className="space-y-1">
-            <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
-              <Building2 className="h-3 w-3 text-emerald-400" />
-              1. Department:
-            </label>
-            <select
-              value={selectedDeptId}
-              onChange={(e) => handleDeptChange(e.target.value)}
-              className="w-full rounded-xl border border-slate-800 bg-surface-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
-            >
-              <option value="">All Departments</option>
-              {departments.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name} ({d.code})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 2. Branch */}
-          <div className="space-y-1">
-            <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
-              <GraduationCap className="h-3 w-3 text-cyan-400" />
-              2. Branch:
-            </label>
-            <select
-              value={selectedBranchId}
-              onChange={(e) => handleBranchChange(e.target.value)}
-              disabled={availableBranches.length === 0}
-              className="w-full rounded-xl border border-slate-800 bg-surface-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 disabled:opacity-50"
-            >
-              <option value="">All Branches</option>
-              {availableBranches.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name} ({b.code})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 3. Section */}
-          <div className="space-y-1">
-            <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
-              <Users className="h-3 w-3 text-indigo-400" />
-              3. Section:
-            </label>
-            <select
-              value={selectedSectionId}
-              onChange={(e) => handleSectionChange(e.target.value)}
-              disabled={availableSections.length === 0}
-              className="w-full rounded-xl border border-slate-800 bg-surface-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 disabled:opacity-50"
-            >
-              <option value="">All Sections</option>
-              {availableSections.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 4. Batch / Group */}
-          <div className="space-y-1">
-            <label className="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
-              <Layers className="h-3 w-3 text-amber-400" />
-              4. Batch / Group:
-            </label>
-            <select
-              value={selectedBatchId}
-              onChange={(e) => handleBatchChange(e.target.value)}
-              disabled={availableBatches.length === 0}
-              className="w-full rounded-xl border border-slate-800 bg-surface-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 disabled:opacity-50"
-            >
-              <option value="">All Batches</option>
-              {availableBatches.map((bg) => (
-                <option key={bg.id} value={bg.id}>
-                  {bg.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Interactive Breadcrumb Ribbon */}
-        <div className="flex items-center gap-2 pt-1 text-[11px] text-slate-400 font-mono overflow-x-auto">
-          <span className="text-slate-500">Scope:</span>
-          <span className="px-2 py-0.5 rounded bg-surface-950 border border-slate-800 text-slate-200">
-            {departments.find((d) => d.id === selectedDeptId)?.name || "All Departments"}
-          </span>
-          <span>➔</span>
-          <span className="px-2 py-0.5 rounded bg-surface-950 border border-slate-800 text-slate-200">
-            {branches.find((b) => b.id === selectedBranchId)?.name || "All Branches"}
-          </span>
-          <span>➔</span>
-          <span className="px-2 py-0.5 rounded bg-surface-950 border border-slate-800 text-slate-200">
-            {sections.find((s) => s.id === selectedSectionId)?.name || "All Sections"}
-          </span>
-          <span>➔</span>
-          <span className="px-2 py-0.5 rounded bg-surface-950 border border-slate-800 text-slate-200">
-            {batches.find((bg) => bg.id === selectedBatchId)?.name || "All Batches"}
-          </span>
-        </div>
-      </Card>
-
       {/* Global Toast / Alerts */}
       {actionSuccess && (
-        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-emerald-400 text-xs shadow-lg animate-in fade-in">
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-emerald-400 text-xs shadow-lg animate-in fade-in">
           <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
           <p className="flex-1 font-medium">{actionSuccess}</p>
           <button onClick={() => setActionSuccess("")} className="hover:text-white p-1">
@@ -603,7 +444,7 @@ export default function AttendanceMonitorPage() {
       )}
 
       {actionError && (
-        <div className="flex items-center gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3.5 text-rose-400 text-xs shadow-lg animate-in fade-in">
+        <div className="flex items-center gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-rose-400 text-xs shadow-lg animate-in fade-in">
           <AlertCircle className="h-4 w-4 flex-shrink-0" />
           <p className="flex-1 font-medium">{actionError}</p>
           <button onClick={() => setActionError("")} className="hover:text-white p-1">
@@ -611,6 +452,84 @@ export default function AttendanceMonitorPage() {
           </button>
         </div>
       )}
+
+      {/* Compact Unified Filter Strip */}
+      <div className="flex flex-wrap items-center gap-2.5 p-3 rounded-2xl border border-slate-800/80 bg-surface-900/60 backdrop-blur-md">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+          <input
+            type="text"
+            placeholder="Search student name or roll..."
+            value={recordSearch}
+            onChange={(e) => setRecordSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-800 bg-surface-950 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+
+        <select
+          value={selectedDeptId}
+          onChange={(e) => handleDeptChange(e.target.value)}
+          className="rounded-xl border border-slate-800 bg-surface-950 px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500"
+        >
+          <option value="">All Departments</option>
+          {departments.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.name} ({d.code})
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedBranchId}
+          onChange={(e) => handleBranchChange(e.target.value)}
+          disabled={availableBranches.length === 0}
+          className="rounded-xl border border-slate-800 bg-surface-950 px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500 disabled:opacity-40"
+        >
+          <option value="">All Branches</option>
+          {availableBranches.map((b) => (
+            <option key={b.id} value={b.id}>
+              {b.name} ({b.code})
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedSectionId}
+          onChange={(e) => handleSectionChange(e.target.value)}
+          disabled={availableSections.length === 0}
+          className="rounded-xl border border-slate-800 bg-surface-950 px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500 disabled:opacity-40"
+        >
+          <option value="">All Sections</option>
+          {availableSections.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={recordAiFilter}
+          onChange={(e) => setRecordAiFilter(e.target.value as "all" | "verified" | "flagged")}
+          className="rounded-xl border border-slate-800 bg-surface-950 px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500"
+        >
+          <option value="all">All AI Statuses</option>
+          <option value="verified">Verified (Green)</option>
+          <option value="flagged">Flagged (Red)</option>
+        </select>
+
+        {(selectedDeptId || selectedBranchId || selectedSectionId || recordSearch || recordAiFilter !== "all") && (
+          <button
+            onClick={() => {
+              resetHierarchy();
+              setRecordSearch("");
+              setRecordAiFilter("all");
+            }}
+            className="px-2.5 py-1.5 text-xs text-rose-400 hover:text-rose-300 font-medium cursor-pointer"
+          >
+            Clear Filters
+          </button>
+        )}
+      </div>
 
       {/* Primary Tabs */}
       <div className="flex items-center justify-between border-b border-slate-800">
@@ -675,50 +594,6 @@ export default function AttendanceMonitorPage() {
       {/* ─────────────────────────────────────────────────────────────────── */}
       {activeTab === "records" && (
         <div className="space-y-4">
-          {/* Search Toolbar */}
-          <Card className="p-4 border-slate-800/70 bg-surface-900/60 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
-              <div className="relative min-w-[240px] max-w-sm flex-1">
-                <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
-                <input
-                  type="text"
-                  placeholder="Search student name, roll number, section..."
-                  value={recordSearch}
-                  onChange={(e) => setRecordSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-800 bg-surface-950 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              <select
-                value={recordStatusFilter}
-                onChange={(e) => setRecordStatusFilter(e.target.value)}
-                className="rounded-xl border border-slate-800 bg-surface-950 px-3 py-1.5 text-xs text-slate-300 focus:outline-none"
-              >
-                <option value="">All Attendance Statuses</option>
-                <option value="present">Present</option>
-                <option value="late">Late</option>
-                <option value="absent">Absent</option>
-                <option value="excused">Excused</option>
-              </select>
-
-              {recordSearch && (
-                <button
-                  type="button"
-                  onClick={() => setRecordSearch("")}
-                  className="text-xs text-slate-400 hover:text-white flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-surface-800"
-                >
-                  <X className="h-3 w-3" /> Clear Search
-                </button>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400 font-mono">
-                Showing {displayedRecords.length} records
-              </span>
-            </div>
-          </Card>
-
           {/* Master Unified Table */}
           <Card className="border-slate-800/70 bg-surface-900/60 overflow-hidden shadow-xl">
             <div className="overflow-x-auto">
@@ -726,28 +601,26 @@ export default function AttendanceMonitorPage() {
                 <thead className="bg-surface-950/80 text-slate-400 border-b border-slate-800/80 uppercase font-semibold">
                   <tr>
                     <th className="py-3 px-4">Student &amp; Roll No.</th>
-                    <th className="py-3 px-4">Academic Class &amp; Batch</th>
-                    <th className="py-3 px-4">Subject &amp; Session</th>
-                    <th className="py-3 px-4">Check-In Time</th>
-                    <th className="py-3 px-4">AI Sentinel Status</th>
-                    <th className="py-3 px-4">Telemetry Evidence</th>
-                    <th className="py-3 px-4">AI Autonomous Verdict</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
+                    <th className="py-3 px-4">Class &amp; Batch</th>
+                    <th className="py-3 px-4">Subject</th>
+                    <th className="py-3 px-4">Time</th>
+                    <th className="py-3 px-4">AI Verification</th>
+                    <th className="py-3 px-4 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60">
                   {recordsLoading ? (
                     <tr>
-                      <td colSpan={8} className="py-12 text-center text-slate-400">
+                      <td colSpan={6} className="py-12 text-center text-slate-400">
                         <div className="flex items-center justify-center gap-2">
                           <RefreshCw className="h-4 w-4 animate-spin text-emerald-400" />
-                          <span>Syncing unified attendance records &amp; AI anomaly detector...</span>
+                          <span>Syncing unified attendance records...</span>
                         </div>
                       </td>
                     </tr>
                   ) : displayedRecords.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="py-12 text-center">
+                      <td colSpan={6} className="py-12 text-center">
                         <div className="max-w-md mx-auto space-y-3">
                           <div className="mx-auto h-12 w-12 rounded-full bg-slate-800/60 flex items-center justify-center text-slate-400 border border-slate-700/60">
                             <ShieldCheck className="h-6 w-6 text-emerald-400" />
@@ -774,8 +647,6 @@ export default function AttendanceMonitorPage() {
                   ) : (
                     displayedRecords.map((r) => {
                       const isFlagged = r.is_suspicious;
-                      const isPresent = r.status.toLowerCase() === "present";
-                      const isLate = r.status.toLowerCase() === "late";
 
                       return (
                         <tr
@@ -807,81 +678,43 @@ export default function AttendanceMonitorPage() {
                             </p>
                           </td>
 
-                          {/* Subject & Session */}
+                          {/* Subject */}
                           <td className="py-3 px-4">
                             <p className="font-medium text-slate-200">{r.subject_name}</p>
                             <p className="text-[10px] text-slate-500 font-mono">
-                              Session #{r.session_id} {r.subject_code ? `· ${r.subject_code}` : ""}
+                              {r.subject_code ? r.subject_code : `Session #${r.session_id}`}
                             </p>
                           </td>
 
                           {/* Check-In Time */}
                           <td className="py-3 px-4 font-mono text-slate-300">
-                            <div>{r.check_in_time || (r.marked_at ? new Date(r.marked_at).toLocaleTimeString() : "—")}</div>
+                            <div>{r.check_in_time || (r.marked_at ? new Date(r.marked_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—")}</div>
                             <div className="text-[10px] text-slate-500">
                               {r.marked_at ? new Date(r.marked_at).toLocaleDateString() : ""}
                             </div>
                           </td>
 
-                          {/* AI Sentinel Status: Green for Verified, Red for Suspicious */}
+                          {/* AI Verification & Distance */}
                           <td className="py-3 px-4">
                             {isFlagged ? (
-                              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 inline-flex items-center gap-1.5 shadow-sm shadow-rose-950/40">
-                                <AlertTriangle className="h-3.5 w-3.5 text-rose-400 animate-pulse" />
-                                AI FLAGGED
-                              </span>
-                            ) : (
-                              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 inline-flex items-center gap-1.5">
-                                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                                AI VERIFIED
-                              </span>
-                            )}
-                          </td>
-
-                          {/* Telemetry Evidence */}
-                          <td className="py-3 px-4">
-                            {isFlagged ? (
-                              <div>
-                                <span className="font-mono text-[11px] font-bold text-rose-400 flex items-center gap-1">
-                                  <MapPin className="h-3 w-3" />
-                                  {r.distance_meters ? `${r.distance_meters.toFixed(1)}m Outside` : "GPS Spoof"}
+                              <div className="space-y-0.5">
+                                <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 inline-flex items-center gap-1 shadow-sm">
+                                  <AlertTriangle className="h-3 w-3 text-rose-400" />
+                                  Flagged Anomaly
                                 </span>
-                                <p className="text-[10px] text-rose-300/80 truncate max-w-[180px]" title={r.suspicion_reason || "Location Discrepancy"}>
-                                  {r.suspicion_reason || "Proxy Pattern Detected"}
+                                <p className="text-[11px] font-mono font-medium text-rose-400">
+                                  {r.distance_meters ? `${r.distance_meters.toFixed(1)}m Outside` : (r.suspicion_reason || "Proxy Flagged")}
                                 </p>
                               </div>
                             ) : (
-                              <div>
-                                <span className="font-mono text-[11px] text-emerald-400 font-medium flex items-center gap-1">
-                                  <MapPin className="h-3 w-3" />
+                              <div className="space-y-0.5">
+                                <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 inline-flex items-center gap-1">
+                                  <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                                  Verified Clean
+                                </span>
+                                <p className="text-[11px] font-mono text-slate-400">
                                   {r.distance_meters != null ? `${r.distance_meters.toFixed(1)}m Inside` : "Geofence OK"}
-                                </span>
-                                <p className="text-[10px] text-slate-400 font-mono truncate max-w-[150px]">
-                                  {r.device_id || "Trusted Hardware"}
                                 </p>
-                              </div>
-                            )}
-                          </td>
-
-                          {/* AI Autonomous Verdict */}
-                          <td className="py-3 px-4">
-                            {isFlagged ? (
-                              <div className="space-y-0.5">
-                                <span className="text-[11px] font-bold text-rose-400 block font-mono">
-                                  🔴 PREDICTED FRAUD
-                                </span>
-                                <span className="text-[10px] text-slate-400 block font-mono">
-                                  Risk: 94% · Auto-Bypassed
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="space-y-0.5">
-                                <span className="text-[11px] font-bold text-emerald-400 block font-mono">
-                                  🟢 AI APPROVED
-                                </span>
-                                <span className="text-[10px] text-slate-400 block font-mono">
-                                  Risk: 2% · Verified Clean
-                                </span>
                               </div>
                             )}
                           </td>
@@ -891,14 +724,14 @@ export default function AttendanceMonitorPage() {
                             <button
                               onClick={() => setTelemetryRecord(r)}
                               title="View Complete AI Telemetry & Verdict Signals"
-                              className={`px-2.5 py-1 rounded-lg text-xs font-semibold border flex items-center gap-1 ml-auto transition cursor-pointer ${
+                              className={`px-2.5 py-1 rounded-lg text-xs font-semibold border inline-flex items-center gap-1 transition cursor-pointer ${
                                 isFlagged
                                   ? "border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20"
                                   : "border-slate-800 bg-surface-950 text-slate-300 hover:text-white hover:border-slate-700"
                               }`}
                             >
                               <Bot className="h-3.5 w-3.5 text-emerald-400" />
-                              View AI Signals
+                              Details
                             </button>
                           </td>
                         </tr>
