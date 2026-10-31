@@ -25,7 +25,9 @@ class Settings(BaseSettings):
 
     @property
     def clean_database_url(self) -> str:
-        url = self.database_url
+        url = (self.database_url or "").strip().strip("\"'")
+        if not url:
+            return "sqlite:///./geoattend.db"
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
         return url

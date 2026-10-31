@@ -512,7 +512,8 @@ def seed() -> None:
             db.query(AcademicEnrollment)
             .filter(
                 AcademicEnrollment.student_id == prarthana.id,
-                AcademicEnrollment.section_id == section.id,
+                AcademicEnrollment.semester == 5,
+                AcademicEnrollment.academic_year == "2024-2025",
             )
             .first()
         )
@@ -530,6 +531,12 @@ def seed() -> None:
                 is_current=True,
             )
             db.add(prarthana_enrollment)
+            db.flush()
+        else:
+            prarthana_enrollment.section_id = section.id
+            prarthana_enrollment.student_group_id = group_b1.id
+            prarthana_enrollment.is_current = True
+            prarthana_enrollment.status = EnrollmentStatus.ACTIVE
             db.flush()
 
         # 12d. Faculty (Ashish Tomar)
